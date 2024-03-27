@@ -78,7 +78,7 @@ const LoginSCG = () => {
                 setIsNavigating(true);
                 window.location.href = '/student/event'
             } else {
-                setError(data.message);
+                setError(data.message.message);
             }
         } catch (error) {
             console.error('Error logging in: ', error);

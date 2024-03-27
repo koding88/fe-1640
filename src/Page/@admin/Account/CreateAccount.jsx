@@ -30,23 +30,23 @@ const CreateAccount = () => {
 
     // Validate form
     useEffect(() => {
-        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
+        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !==''));
     }, [validationErrors, formData]);
 
     const validateField = (name, value) => {
         let errorMessage = '';
         switch (name) {
             case 'Name':
-                errorMessage = value.trim() ? '' : 'Name is required.';
+                errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'User name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters.';
                 break;
             case 'Email':
-                errorMessage = /^\S+@\S+\.\S+$/.test(value) ? '' : 'Email is invalid.';
+                errorMessage = /\S+@\S+\.\S+/.test(value) ? '' : 'Email must contain `@` and cannot contain other special characters..';
                 break;
             case 'Phone':
-                errorMessage = /^\d{10}$/.test(value) ? '' : 'Phone number must be 10 digits.';
+                errorMessage = /^\+?[0-9]\d{1,20}$/.test(value) ? '' : 'Phone number must be 10 digits.';
                 break;
             case 'Address':
-                errorMessage = value.trim() ? '' : 'Address is required.';
+                errorMessage = /^[A-Za-z0-9\s]{1,300}$/.test(value) ? '' : 'Address is invalid, cannot contain special characters, and must have a maximum of 50 characters.';
                 break;
             default:
                 break;
@@ -59,15 +59,6 @@ const CreateAccount = () => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
         validateField(name, value);
-
-        const inputElement = e.target;
-        if (validationErrors[name] && inputElement.value !== '') {
-            inputElement.classList.remove('valid');
-            inputElement.classList.add('invalid');
-        } else {
-            inputElement.classList.remove('invalid');
-            inputElement.classList.add('valid');
-        }
     };
 
     const handleBack = () => {
@@ -95,14 +86,17 @@ const CreateAccount = () => {
             const response = await fetch(`${ApiResponse}users`, {
                 method: 'POST',
                 headers: {
-                    'Content-type': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
+
                 body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                throw new Error('Failed to create account');
+                const data = response.json();
+                data.then(data => setError(data.message))
             }
-            navigate(-1);
+            navigate('/admin/account');
         } catch (error) {
             console.error('Error creating account:', error);
             setError('Failed to create account. Please try again later.');
@@ -173,7 +167,7 @@ const CreateAccount = () => {
 
                             <div className="form-group mb-input">
                                 <label>Faculty</label>
-                                <select value={formData.FacultyID} onChange={handleChange} className='form-control' required name="FacultyID">
+                                <select value={formData.FacultyID} required onChange={handleChange} className='form-control' name="FacultyID">
                                     <option value="" hidden>Select Faculty</option>
                                     {facultyData && Array.isArray(facultyData.data) && facultyData.data.map((faculty) => (
                                         <option key={faculty.ID} value={faculty.ID}>{faculty.Name}</option>
@@ -184,7 +178,7 @@ const CreateAccount = () => {
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" disabled={!isFormValid || isLoading} className="btn">Create</button>
+                                <button type="submit" className="btn">Create</button>
                             </div>
                             {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}

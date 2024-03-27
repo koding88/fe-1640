@@ -42,10 +42,15 @@ const ListAccount = () => {
         try {
             const response = await fetch(`${ApiResponse}users/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete account');
+                const data = response.json();
+                throw new Error(data.then(data => (data.message)));
             }
             setAccounts(prevAccounts => prevAccounts.filter(account => account.ID !== id));
         } catch (error) {

@@ -56,11 +56,17 @@ const ListFaculty = () => {
     const handleDelete = async (id) => {
         try {
             const response = await fetch(`${ApiResponse}faculties/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete faculty');
+                const data = response.json();
+                data.then(data => setError(data.message))
             }
             setFaculty(prevFaculty => prevFaculty.filter(faculty => faculty.ID !== id));
         } catch (error) {
@@ -76,7 +82,6 @@ const ListFaculty = () => {
     const filteredFaculty = faculty.filter(faculty =>
         faculty.Name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
 
     return (
         <div className="box">

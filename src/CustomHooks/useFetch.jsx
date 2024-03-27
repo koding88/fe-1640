@@ -7,9 +7,7 @@ const useFetch = (url) => {
 
     useEffect(() => {
         const abortCont = new AbortController();
-
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzExNTEwMTcwLCJleHAiOjE3MTE1MTM3NzB9.TDhy3nljlduMDgwN3BUBi0GfAjHcO3C458MrcoSDA6o'
-
+        const token = localStorage.getItem('token');
         fetch(url, {
             headers: {
                 'Content-type': 'application/json',

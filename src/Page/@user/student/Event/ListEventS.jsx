@@ -15,8 +15,9 @@ const ListEventS = () => {
     // Set Data
     useEffect(() => {
         if (eventData) {
-            const data = eventData.filter(event => event.FacultyID === 2) // gia dinh
-            setEvents(data);
+            // const data = eventData.filter(event => event.FacultyID === 5) // gia dinh
+            // setEvents(data);
+            setEvents(eventData);
         }
     }, [eventData]);
 

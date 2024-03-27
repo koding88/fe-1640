@@ -29,10 +29,10 @@ const CreateFaculty = () => {
         let errorMessage = '';
         switch (name) {
             case 'Name':
-                errorMessage = value.trim() ? '' : 'Name is required.';
+                errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Faculty name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters.';
                 break;
             case 'Description':
-                errorMessage = value.trim() ? '' : 'Description is required.';
+                errorMessage = value.length < 3000 ? '' : 'Description is invalid, must have a maximum of 3000 characters.';
                 break;
             default:
                 break;
@@ -45,14 +45,6 @@ const CreateFaculty = () => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
         validateField(name, value);
-        const inputElement = e.target;
-        if (validationErrors[name]) {
-            inputElement.classList.remove('valid');
-            inputElement.classList.add('invalid');
-        } else {
-            inputElement.classList.remove('invalid');
-            inputElement.classList.add('valid');
-        }
     };
 
     const handleBack = () => {
@@ -79,12 +71,14 @@ const CreateFaculty = () => {
             const response = await fetch(`${ApiResponse}faculties`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
                 body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                throw new Error('Failed to create faculty');
+                const data = response.json();
+                data.then(data => setError(data.message))
             }
             navigate('/admin/faculty');
         } catch (error) {

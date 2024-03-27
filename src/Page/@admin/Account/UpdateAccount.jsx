@@ -70,27 +70,6 @@ const UpdateAccount = () => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
         validateField(name, value);
-
-        const inputElement = e.target;
-        const isValid = validationErrors[name] === '';
-
-        if (isValid) {
-            inputElement.classList.remove('invalid');
-            inputElement.classList.add('valid');
-        } else {
-            inputElement.classList.remove('valid');
-            inputElement.classList.add('invalid');
-        }
-
-        // Kiểm tra nếu có thông báo lỗi thì thêm class invalid
-        if (validationErrors[name]) {
-            inputElement.classList.add('invalid');
-        }
-
-        // Kiểm tra nếu giá trị là rỗng, thì xoá class valid
-        if (value.trim() === '') {
-            inputElement.classList.remove('valid');
-        }
     };
 
     const handleBack = () => {
@@ -118,12 +97,14 @@ const UpdateAccount = () => {
             const response = await fetch(`${ApiResponse}users/${id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
                 body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                throw new Error('Failed to create account');
+                const data = response.json();
+                data.then(data => setError(data.message))
             }
             navigate(-1);
         } catch (error) {

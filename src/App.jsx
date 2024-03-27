@@ -129,9 +129,9 @@ function App() {
                   {/* Coordinator */}
                   <Route path='/coordinator/event' element={<ListEventC />} />
                   <Route path='/coordinator/event/detail/:id' element={<DetailEventC />} />
-                  <Route path='/coordinator/contribution' element={<ListContributionC />} />
-                  <Route path='/coordinator/contribution/update/:id' element={<UpdateContributionC />} />
-                  <Route path='/coordinator/contribution/detail/:id' element={<DetailContributionC />} />
+                  <Route path='/coordinator/event/contribution' element={<ListContributionC />} />
+                  <Route path='/coordinator/event/contribution/update/:id' element={<UpdateContributionC />} />
+                  <Route path='/coordinator/event/contribution/detail/:id' element={<DetailContributionC />} />
                   <Route path='/coordinator/public' element={<PublicContributionPC />} />
                   <Route path='/coordinator/public/detail/:id' element={<DetailContributionPC />} />
 

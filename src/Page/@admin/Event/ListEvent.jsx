@@ -47,7 +47,8 @@ const ListEvent = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete event');
+                const data = response.json();
+                throw new Error(data.then(data => (data.message)));
             }
             setEvents(prevEvents => prevEvents.filter(event => event.ID !== id));
         } catch (error) {

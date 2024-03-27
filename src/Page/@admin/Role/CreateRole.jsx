@@ -28,7 +28,7 @@ const CreateRole = () => {
         let errorMessage = '';
         switch (name) {
             case 'Name':
-                errorMessage = value.trim() ? '' : 'Name is required.';
+                errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Role name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters.';
                 break;
             case 'Description':
                 errorMessage = value.trim() ? '' : 'Description is required.';
@@ -44,14 +44,6 @@ const CreateRole = () => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
         validateField(name, value);
-        const inputElement = e.target;
-        if (validationErrors[name]) {
-            inputElement.classList.remove('valid');
-            inputElement.classList.add('invalid');
-        } else {
-            inputElement.classList.remove('invalid');
-            inputElement.classList.add('valid');
-        }
     };
 
     const handleBack = () => {
@@ -71,12 +63,14 @@ const CreateRole = () => {
             const response = await fetch(`${ApiResponse}roles`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
                 body: JSON.stringify(formData)
             });
             if (!response.ok) {
-                throw new Error('Failed to create role');
+                const data = response.json();
+                data.then(data => setError(data.message))
             }
             navigate('/admin/role');
         } catch (error) {

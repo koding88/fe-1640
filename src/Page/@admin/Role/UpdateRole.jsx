@@ -86,12 +86,13 @@ const UpdateRole = () => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzExNTEwMTcwLCJleHAiOjE3MTE1MTM3NzB9.TDhy3nljlduMDgwN3BUBi0GfAjHcO3C458MrcoSDA6o'
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
                 body: JSON.stringify(formData)
             });
             if (!response.ok) {
-                throw new Error('Failed to create role');
+                const data = response.json();
+                data.then(data => setError(data.message))
             }
             navigate('/admin/role');
         } catch (error) {

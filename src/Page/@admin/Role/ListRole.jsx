@@ -43,11 +43,16 @@ const ListRole = () => {
     const handleDelete = async (id) => {
         try {
             const response = await fetch(`${ApiResponse}roles/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete role');
+                const data = response.json();
+                throw new Error(data.then(data => (data.message)));
             }
             setRole(prevRole => prevRole.filter(role => role.ID !== id));
         } catch (error) {

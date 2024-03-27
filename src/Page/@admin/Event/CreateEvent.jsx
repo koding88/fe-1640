@@ -47,10 +47,25 @@ const CreateEvent = () => {
         let errorMessage = '';
         switch (name) {
             case 'Name':
-                errorMessage = value.trim() ? '' : 'Name is required.';
+                errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Event name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters."';
                 break;
             case 'Description':
                 errorMessage = value.trim() ? '' : 'Description is required.';
+                break;
+            case 'ClosureDate':
+                // Check if Closure Date is required
+                errorMessage = value.trim() ? '' : 'Closure Date is required.';
+                // Check if Closure Date is before Final Date
+                if (formData.FinalDate && value > formData.FinalDate) {
+                    errorMessage = 'Closure Date must be before Final Date.';
+                }
+                break;
+            case 'FinalDate':
+                errorMessage = value.trim() ? '' : 'Final Date is required.';
+                // Check if Closure Date is before Final Date
+                if (formData.FinalDate && value < formData.FinalDate) {
+                    errorMessage = 'Final Date must be after Final Date.';
+                }
                 break;
             default:
                 break;
@@ -63,14 +78,6 @@ const CreateEvent = () => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
         validateField(name, value);
-        const inputElement = e.target;
-        if (validationErrors[name]) {
-            inputElement.classList.remove('valid');
-            inputElement.classList.add('invalid');
-        } else {
-            inputElement.classList.remove('invalid');
-            inputElement.classList.add('valid');
-        }
     };
 
     const handleBack = () => {
@@ -99,12 +106,14 @@ const CreateEvent = () => {
             const response = await fetch(`${ApiResponse}events`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
                 body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                throw new Error('Failed to create event');
+                const data = response.json();
+                data.then(data => setError(data.message))
             }
             navigate('/admin/event');
         } catch (error) {
@@ -218,7 +227,7 @@ const CreateEvent = () => {
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
                                 <button type="submit" disabled={!isFormValid || isLoading} className="btn">Create</button>
                             </div>
-                            {isLoading && <Loading/>}
+                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

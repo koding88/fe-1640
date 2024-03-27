@@ -14,6 +14,7 @@ const LoginAM = () => {
     const [isFormValid, setIsFormValid] = useState(false);
     const [error, setError] = useState(null);
     const [validationErrors, setValidationErrors] = useState({});
+    const [loginError, setLoginError] = useState(false)
     const navigate = useNavigate();
 
     // Validate form
@@ -71,13 +72,21 @@ const LoginAM = () => {
                 localStorage.setItem('token', data.token);
                 window.location.href = '/admin/account'
             } else {
-                setError(data.message);
+                setLoginError(true);
+                setError(data.message.message);
             }
         } catch (error) {
             console.error('Error logging in: ', error);
+            setLoginError(true);
             setError('An error occurred while logging in. Please try again later.');
         }
     };
+
+    // useEffect(() => {
+    //     if (loginError) {
+    //         window.location.href = '/login/admin'
+    //     }
+    // }, [loginError]);
 
     return (
         <div className="login-staff">

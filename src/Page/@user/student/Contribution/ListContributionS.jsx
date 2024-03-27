@@ -12,6 +12,12 @@ const ListContribution = () => {
     // Fetch data
     const { data: contributionData, error } = useFetch(`${ApiResponse}contributions/?depth=1`);
 
+    const { data: fileData, errorFile } = useFetch(`${ApiResponse}files/`);
+
+    // console.log(
+    //     fileData.map((file) => file.Url)
+    // )
+
     // State
     const navigate = useNavigate();
     const [contribution, setContribution] = useState([]);
@@ -93,10 +99,19 @@ const ListContribution = () => {
                                 filteredContribution.map((row, index) => (
                                     <tr key={index}>
                                         <td>{row.Name}</td>
-                                        <td className='text-truncate'>{row.Content}</td>
-                                        <td><img width={150 + 'px'} height={150 + 'px'} src={row?.Image} alt="" /></td>
-                                        <td>{row?.File}</td>
-                                        <td>{row?.StatusID}</td>
+                                        <td>{row.Content}</td>
+
+                                        {
+                                            fileData.map((file, index) =>
+                                                <td key={index}>
+                                                    <img width={100 + 'px'} height={100 + 'px'} src={file.Url} alt="" />
+                                                </td>
+                                            )
+                                        }
+
+
+                                        <td>File</td>
+                                        <td>{row.Status.Name}</td>
 
                                         <td colSpan="2">
                                             <ul className="menu-action">
