@@ -1,105 +1,113 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormGroup from '../../../../components/FormGroup';
 import Loading from '../../../../components/Loading';
+import { ApiResponse } from '../../../../Api';
+import { jwtDecode } from 'jwt-decode';
 
 const Data = {
-    Name: '',
-    Content: '',
+    Name: "",
+    Content: "",
     IsPublic: false,
     IsApproved: false,
     EventID: 0,
     UserID: 0,
-    StatusID: 0
+    StatusID: 1,
+    filesPath: [],
+    file2: []
 }
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
 
 const CreateContributionS = () => {
     // State
     const [formData, setFormData] = useState(Data);
-    const [isFormValid, setIsFormValid] = useState(false);
-    const [validationErrors, setValidationErrors] = useState(Data);
     const [isLoading, setIsLoading] = useState(false);
+    const [validationErrors, setValidationErrors] = useState(Data);
+    const [isFormValid, setIsFormValid] = useState(false);
     const [isActive, setIsActive] = useState(false);
     const [error, setError] = useState(null);
+
+    // Navigate, ID
     const navigate = useNavigate();
     const { id } = useParams();
 
-    // Validate form
-    useEffect(() => {
-        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
-    }, [validationErrors, formData]);
+    // Decode token
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
 
+    // get userID from token
+    const UserID = decodedToken.id;
+
+    // Validate form
     const validateField = (name, value) => {
-        let errorMessage = '';
-        switch (name) {
-            case 'Name':
-                errorMessage = value.trim() ? '' : 'Name is required.';
-                break;
-            case 'Content':
-                errorMessage = value.trim() ? '' : 'Description is required.';
-                break;
-            default:
-                break;
-        }
+        const errorMessage = {
+            Name: value.trim() ? '' : 'Name is required.',
+            Content: value.trim() ? '' : 'Content is required.',
+        }[name];
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
     // Handle Event
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({ ...prevState, [name]: value }));
+        const { name, value, files } = e.target;
         validateField(name, value);
-        const inputElement = e.target;
-        if (validationErrors[name]) {
-            inputElement.classList.remove('valid');
-            inputElement.classList.add('invalid');
+
+        if (name === 'filesPath' || name === 'file2') {
+            const selectedFiles = Array.from(files);
+
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                [name]: selectedFiles
+            }));
         } else {
-            inputElement.classList.remove('invalid');
-            inputElement.classList.add('valid');
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                [name]: value
+            }));
         }
     };
 
     const handleBack = () => {
-        navigate(-1) // Go back | Need to fix
+        navigate(-1);
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!isFormValid) {
-            setError("Please fill in all fields correctly.");
-            return;
-        }
+        const formDataToSend = new FormData();
+        formDataToSend.append('Name', formData.Name);
+        formDataToSend.append('Content', formData.Content);
+        formDataToSend.append('IsPublic', formData.IsPublic);
+        formDataToSend.append('IsApproved', formData.IsApproved);
+        formDataToSend.append('EventID', id);
+        formDataToSend.append('UserID', UserID);
+        formDataToSend.append('StatusID', 0);
 
-        const newFormData = {
-            ...formData,
-            IsPublic: formData.IsPublic === 'true' ? true : false,
-            IsApproved: formData.IsApproved === 'true' ? true : false,
-            EventID: parseInt(formData.EventID),
-            UserID: parseInt(formData.UserID),
-            StatusID: parseInt(formData.StatusID),
-        }
+        formData.filesPath.forEach(file => {
+            formDataToSend.append('filesPath', file);
+        });
+        formData.file2.forEach(file => {
+            formDataToSend.append('file2', file);
+        });
 
         setIsLoading(true);
         setError(null);
 
-        // console.log(newFormData)
-
         try {
-            const response = await fetch(`${ApiResponse}contributions`, {
+            const response = await fetch(`${ApiResponse}contributions/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
-                body: JSON.stringify(newFormData)
+                body: formDataToSend
             });
-            console.log(response)
+
             if (!response.ok) {
-                throw new Error('Failed to create contribution');
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
-            navigate(-1); // Need to fix
+
+            navigate(-1);
         } catch (error) {
             console.error('Error creating contribution:', error);
             setError('Failed to create contribution. Please try again later.');
@@ -113,7 +121,7 @@ const CreateContributionS = () => {
     }
 
     const handleClose = () => {
-        setIsActive(false)
+        setIsActive(false);
     }
 
     return (
@@ -126,7 +134,9 @@ const CreateContributionS = () => {
             <div className="row-2">
                 <div className="box">
                     <div className="box-content contribution">
-                        <form onSubmit={handleSubmit} encType='multipart/form-data'>
+                        <form onSubmit={handleSubmit} encType='multipart/form-data'
+                            style={{ width: '100%' }}
+                        >
                             <FormGroup
                                 label={'Name'}
                                 inputType={'text'}
@@ -139,43 +149,49 @@ const CreateContributionS = () => {
                             <div className="form-group">
                                 <label>Content</label>
                                 <textarea required name="Content" cols="30" rows="10" value={formData.Content} onChange={handleChange}></textarea>
-                                {validationErrors.Content && <div className="error">{validationErrors.Content}</div>}
+                            </div>
+                            {validationErrors.Content && <div className="error">{validationErrors.Content}</div>}
+
+                            <div className="form-group">
+                                <label>Image</label>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept='image/*'
+                                    name="filesPath"
+                                    className='input-file'
+                                    onChange={handleChange}
+                                />
                             </div>
 
-                            <FormGroup
-                                label={'Image'}
-                                inputType={'file'}
-                                inputName={'Image'}
-                                value={formData.Image}
-                                addClass={'input-file'}
-                                onChange={handleChange}
-                            />
-                            {validationErrors.Image && <div className="error">{validationErrors.Image}</div>}
+                            <div className="form-group">
+                                <label>File</label>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept='.docx'
+                                    name="file2"
+                                    className='input-file'
+                                    onChange={handleChange}
+                                />
+                            </div>
 
-                            <FormGroup
-                                label={'File'}
-                                inputType={'file'}
-                                inputName={'File'}
-                                value={formData.File}
-                                addClass={'input-file'}
-                                onChange={handleChange}
-                            />
-                            {validationErrors.File && <div className="error">{validationErrors.File}</div>}
-                            <div className='mb-input'></div>
+                            <div className="mb-input"></div>
 
                             <div className="form-action">
-                                <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" className="btn" onClick={handleOpen} disabled={!isFormValid || isLoading} >Create</button>
+                                <button type="button" onClick={handleBack} className="btn">Cancel</button>
+                                <button type="button" className="btn" onClick={handleOpen}>Create</button>
                             </div>
 
                             <div className={`term-conditions ${isActive ? 'active' : ''}`}>
                                 <div className="title">
                                     Term and conditions
                                 </div>
+                                {/* Content of terms and conditions */}
                                 <div className="content">
                                     <div>General Site Usage</div>
                                     <div>Last Revised: December 16, 2013</div>
-                                    <span>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                    <span>Lorem Ipsum is simply dummy text of the printing and typesetting
                                         industry.
                                         Lorem Ipsum has been the industry s standard dummy text ever since the
                                         1500s, when an unknown printer took a galley of type and scrambled it to
@@ -213,11 +229,6 @@ const CreateContributionS = () => {
                             {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
-                        <div className="image-preview"
-                            style={{ backgroundImage: 'url(' + formData.Image + ')' }}>
-                            Preview image
-                        </div>
-
                     </div>
                 </div>
             </div>

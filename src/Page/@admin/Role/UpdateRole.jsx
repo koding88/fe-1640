@@ -39,17 +39,11 @@ const UpdateRole = () => {
     }, [validationErrors, formData]);
 
     const validateField = (name, value) => {
-        let errorMessage = '';
-        switch (name) {
-            case 'Name':
-                errorMessage = value.trim() ? '' : 'Name is required.';
-                break;
-            case 'Description':
-                errorMessage = value.trim() ? '' : 'Description is required.';
-                break;
-            default:
-                break;
-        }
+        const errorMessage = {
+            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid role name: no numbers or special characters, max 15 chars',
+            Description: value.trim() ? '' : 'Description is required'
+        }[name];
+
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
@@ -58,14 +52,6 @@ const UpdateRole = () => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
         validateField(name, value);
-        const inputElement = e.target;
-        if (validationErrors[name]) {
-            inputElement.classList.remove('valid');
-            inputElement.classList.add('invalid');
-        } else {
-            inputElement.classList.remove('invalid');
-            inputElement.classList.add('valid');
-        }
     };
 
     const handleBack = () => {
@@ -117,7 +103,10 @@ const UpdateRole = () => {
                 </div>
             </div>
             <div className="row-2">
-                <div className="box">
+                <div className="box"
+                    style={{
+                        minHeight: '580px',
+                    }}>
                     <div className="box-content">
                         <form onSubmit={handleSubmit}>
                             <FormGroup

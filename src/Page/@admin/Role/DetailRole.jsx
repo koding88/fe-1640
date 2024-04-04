@@ -50,7 +50,10 @@ const DetailRole = () => {
                 </div>
             </div>
             <div className="row-2">
-                <div className="box">
+                <div className="box"
+                    style={{
+                        minHeight: '580px',
+                    }}>
                     <div className="box-content">
                         <form>
                             <FormGroup

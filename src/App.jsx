@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import NavBar from "./components/NavBar";
 import SideBar from './components/SideBar';
+import { jwtDecode } from 'jwt-decode';
 
 
 // Admin - Account
@@ -31,7 +32,7 @@ import DetailRole from './Page/@admin/Role/DetailRole';
 
 // Student - Event
 import ListEventS from './Page/@user/student/Event/ListEventS';
-import DetailEventS from './Page/@user/student/Event/\bDetailEventS';
+import DetailEventS from './Page/@user/student/Event/ADetailEventS'
 
 // Student - Contribution
 import ListContributionS from './Page/@user/student/Contribution/ListContributionS';
@@ -67,6 +68,11 @@ import DetailContributionG from './Page/@user/guest/DetailContributionG';
 // Auth
 import LoginAM from './Page/Auth/LoginAM';
 import Login from './Page/Auth/Login';
+import ChangePassword from './Page/General/ChangePassword';
+import Profile from './Page/General/Profile';
+import Loading from './components/Loading';
+import ForgotPassword from './Page/General/ForgotPassword';
+import ResetPassword from './Page/General/ResetPassword';
 
 
 function App() {
@@ -74,89 +80,108 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    setIsLoggedIn(token ? true : false);
-    // Redirect to login if no token and not already on login route
-    if (!token && window.location.pathname !== '/login/') {
-      window.location.href = '/login/';
+    setIsLoggedIn(!!token);
+
+    // if (!token && window.location.pathname !== '/login/') {
+    //   window.location.href = '/login/';
+    // }
+
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+
+      if (decodedToken.exp < currentTime) {
+        localStorage.clear()
+        window.location.href = '/login/';
+      }
     }
   }, []);
-
-  console.log(isLoggedIn)
 
   return (
     <Router>
       <div className="App">
-        {(isLoggedIn) && <NavBar />}
-        <div className="Container">
-          {(isLoggedIn) && <SideBar />}
-          <div className='Body'>
-            <div className="Content">
-              <div className="container">
-                <Routes>
-                  {/* Admin */}
-                  {/* Account */}
-                  <Route path='/admin/account' element={<ListAccount />} />
-                  <Route path='/admin/account/create' element={<CreateAccount />} />
-                  <Route path='/admin/account/update/:id' element={<UpdateAccount />} />
-                  <Route path='/admin/account/detail/:id' element={<DetailAccount />} />
+        <Routes>
+          {/* Auth */}
+          <Route path='/login/' element={<Login />} />
+          <Route path='/login/admin' element={<LoginAM />} />
+          <Route path='/forgotpassword' element={<ForgotPassword />} />
+          <Route path='/resetpassword' element={<ResetPassword />} />
 
-                  {/* Faculty */}
-                  <Route path='/admin/faculty' element={<ListFaculty />} />
-                  <Route path='/admin/faculty/create' element={<CreateFaculty />} />
-                  <Route path='/admin/faculty/update/:id' element={<UpdateFaculty />} />
-                  <Route path='/admin/faculty/detail/:id' element={<DetailFaculty />} />
+          <Route
+            path="*"
+            element={
+              isLoggedIn ? (
+                <>
+                  <NavBar />
+                  <div className="Container">
+                    <SideBar />
+                    <Routes>
+                      {/* Admin */}
+                      {/* Account */}
+                      <Route path='/admin/account' element={<ListAccount />} />
+                      <Route path='/admin/account/create' element={<CreateAccount />} />
+                      <Route path='/admin/account/update/:id' element={<UpdateAccount />} />
+                      <Route path='/admin/account/detail/:id' element={<DetailAccount />} />
 
-                  {/* Event */}
-                  <Route path='/admin/event' element={<ListEvent />} />
-                  <Route path='/admin/event/create' element={<CreateEvent />} />
-                  <Route path='/admin/event/update/:id' element={<UpdateEvent />} />
-                  <Route path='/admin/event/detail/:id' element={<DetailEvent />} />
+                      {/* Faculty */}
+                      <Route path='/admin/faculty' element={<ListFaculty />} />
+                      <Route path='/admin/faculty/create' element={<CreateFaculty />} />
+                      <Route path='/admin/faculty/update/:id' element={<UpdateFaculty />} />
+                      <Route path='/admin/faculty/detail/:id' element={<DetailFaculty />} />
 
-                  {/* Role */}
-                  <Route path='/admin/role' element={<ListRole />} />
-                  <Route path='/admin/role/create' element={<CreateRole />} />
-                  <Route path='/admin/role/update/:id' element={<UpdateRole />} />
-                  <Route path='/admin/role/detail/:id' element={<DetailRole />} />
+                      {/* Event */}
+                      <Route path='/admin/event' element={<ListEvent />} />
+                      <Route path='/admin/event/create' element={<CreateEvent />} />
+                      <Route path='/admin/event/update/:id' element={<UpdateEvent />} />
+                      <Route path='/admin/event/detail/:id' element={<DetailEvent />} />
 
-                  {/* Student */}
-                  <Route path='/student/event' element={<ListEventS />} />
-                  <Route path='/student/event/detail/:id' element={<DetailEventS />} />
-                  <Route path='/student/event/contribution/:id' element={<ListContributionS />} />
-                  <Route path='/student/event/contribution/create' element={<CreateContributionS />} />
-                  <Route path='/student/event/contribution/update/:id' element={<UpdateContributionS />} />
-                  <Route path='/student/event/contribution/detail/:id' element={<DetailContributionS />} />
+                      {/* Role */}
+                      <Route path='/admin/role' element={<ListRole />} />
+                      <Route path='/admin/role/create' element={<CreateRole />} />
+                      <Route path='/admin/role/update/:id' element={<UpdateRole />} />
+                      <Route path='/admin/role/detail/:id' element={<DetailRole />} />
 
-                  {/* Coordinator */}
-                  <Route path='/coordinator/event' element={<ListEventC />} />
-                  <Route path='/coordinator/event/detail/:id' element={<DetailEventC />} />
-                  <Route path='/coordinator/event/contribution' element={<ListContributionC />} />
-                  <Route path='/coordinator/event/contribution/update/:id' element={<UpdateContributionC />} />
-                  <Route path='/coordinator/event/contribution/detail/:id' element={<DetailContributionC />} />
-                  <Route path='/coordinator/public' element={<PublicContributionPC />} />
-                  <Route path='/coordinator/public/detail/:id' element={<DetailContributionPC />} />
+                      {/* Student */}
+                      <Route path='/student/event' element={<ListEventS />} />
+                      <Route path='/student/event/detail/:id' element={<DetailEventS />} />
+                      <Route path='/student/event/contribution/:id' element={<ListContributionS />} />
+                      <Route path='/student/event/contribution/:id/create' element={<CreateContributionS />} />
+                      <Route path='/student/event/contribution/:id/update/:id' element={<UpdateContributionS />} />
+                      <Route path='/student/event/contribution/:id/detail/:id' element={<DetailContributionS />} />
 
-                  {/* Manager */}
-                  <Route path='/manager/event' element={<ListEventM />} />
-                  <Route path='/manager/event/detail/:id' element={<DetailEventM />} />
-                  <Route path='/manager/public' element={<PublicContributionPM />} />
-                  <Route path='/manager/public/detail/:id' element={<DetailContributionPM />} />
+                      {/* Coordinator */}
+                      <Route path='/coordinator/event' element={<ListEventC />} />
+                      <Route path='/coordinator/event/detail/:id' element={<DetailEventC />} />
+                      <Route path='/coordinator/event/contribution/:id' element={<ListContributionC />} />
+                      <Route path='/coordinator/event/contribution/:id/update/:id' element={<UpdateContributionC />} />
+                      <Route path='/coordinator/event/contribution/:id/detail/:id' element={<DetailContributionC />} />
+                      <Route path='/coordinator/public' element={<PublicContributionPC />} />
+                      <Route path='/coordinator/public/detail/:id' element={<DetailContributionPC />} />
 
-                  {/* Guest */}
-                  <Route path='/guest/public' element={<PublicContributionG />} />
-                  <Route path='/guest/public/detail/:id' element={<DetailContributionG />} />
+                      {/* Manager */}
+                      <Route path='/manager/event' element={<ListEventM />} />
+                      <Route path='/manager/event/detail/:id' element={<DetailEventM />} />
+                      <Route path='/manager/public' element={<PublicContributionPM />} />
+                      <Route path='/manager/public/detail/:id' element={<DetailContributionPM />} />
 
-                  {/* Auth */}
-                  <Route path='/login/' element={<Login />} />
-                  <Route path='/login/admin' element={<LoginAM />} />
-                </Routes>
-              </div>
-            </div>
-          </div>
-        </div>
+                      {/* Guest */}
+                      <Route path='/guest/public' element={<PublicContributionG />} />
+                      <Route path='/guest/public/detail/:id' element={<DetailContributionG />} />
+
+                      {/* General */}
+                      <Route path='/changepassword' element={<ChangePassword />} />
+                      <Route path='/profile' element={<Profile />} />
+                    </Routes>
+                  </div>
+                </>
+              ) : (
+                isLoggedIn === false ? '' : <Loading />
+              )
+            }
+          />
+        </Routes>
       </div>
     </Router>
   );
 }
-
-
 export default App;

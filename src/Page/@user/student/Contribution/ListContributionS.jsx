@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useFetch from '../../../../CustomHooks/useFetch';
 import TableHead from '../../../../components/TableHead';
 import Search from '../../../../components/Search';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiResponse } from '../../../../Api';
 import Loading from '../../../../components/Loading';
 
@@ -10,13 +10,8 @@ const headings = ['Name', 'Content', 'Image', 'File', 'Status', 'Action'];
 
 const ListContribution = () => {
     // Fetch data
-    const { data: contributionData, error } = useFetch(`${ApiResponse}contributions/?depth=1`);
-
-    const { data: fileData, errorFile } = useFetch(`${ApiResponse}files/`);
-
-    // console.log(
-    //     fileData.map((file) => file.Url)
-    // )
+    const { id } = useParams();
+    const { data: contributionData, error } = useFetch(`${ApiResponse}events/${id}?depth=1&contribution=true`);
 
     // State
     const navigate = useNavigate();
@@ -30,15 +25,6 @@ const ListContribution = () => {
         }
     }, [contributionData]);
 
-    if (error) {
-        {
-            console.log('Error fetching data: ', error.message)
-        }
-        return (
-            <Loading />
-        )
-    }
-
     if (!contribution) {
         return (
             <Loading />
@@ -46,16 +32,32 @@ const ListContribution = () => {
     }
 
     // Handle Event
+    if (!contribution || contribution.length === 0) {
+        return (
+            <Loading />
+        )
+    }
+
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`${ApiResponse}contribution/${id}`, {
-                method: 'DELETE'
+            const response = await fetch(`${ApiResponse}contributions/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
             });
 
             if (!response.ok) {
                 throw new Error('Failed to delete contribution');
             }
-            setContribution(prevContribution => prevContribution.filter(contribution => contribution.ID !== id));
+            setContribution(prevContribution => {
+                const updatedContributions = prevContribution.Contributions.filter(contribution => contribution.ID !== id);
+                return {
+                    ...prevContribution,
+                    Contributions: updatedContributions
+                };
+            });
         } catch (error) {
             console.error('Error deleting contribution:', error);
         }
@@ -66,13 +68,19 @@ const ListContribution = () => {
     };
 
     const handleCreate = () => {
-        navigate('/student/event/contribution/create');
+        navigate(`/student/event/contribution/${id}/create`);
     }
 
     // Filter data
-    const filteredContribution = contribution.filter(contribution =>
-        contribution.Name.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+    const filteredContribution = contribution && contribution.Contributions ?
+        contribution.Contributions.filter(item =>
+            item.Name.toLowerCase().includes(searchTerm.toLowerCase())
+        ) : [];
+
+    const splitFiles = (str) => {
+        const files = str?.split('/');
+        return files?.[files?.length - 1]
+    }
 
     return (
         <div className="box">
@@ -95,23 +103,26 @@ const ListContribution = () => {
                             <TableHead headings={headings} />
                         </thead>
                         <tbody>
-                            {filteredContribution.length > 0 ? (
-                                filteredContribution.map((row, index) => (
+                            {filteredContribution?.length > 0 ? (
+                                filteredContribution?.map((row, index) => (
                                     <tr key={index}>
-                                        <td>{row.Name}</td>
-                                        <td>{row.Content}</td>
+                                        <td>{row?.Name}</td>
+                                        <td>{row?.Content}</td>
+                                        <td>
+                                            {
+                                                <img
+                                                    width={50 + 'px'}
+                                                    height={50 + 'px'}
+                                                    src={row?.Files[0]?.Url} />
+                                            }
 
-                                        {
-                                            fileData.map((file, index) =>
-                                                <td key={index}>
-                                                    <img width={100 + 'px'} height={100 + 'px'} src={file.Url} alt="" />
-                                                </td>
-                                            )
-                                        }
-
-
-                                        <td>File</td>
-                                        <td>{row.Status.Name}</td>
+                                        </td>
+                                        <td>{(splitFiles(row?.Files[1]?.Url))}</td>
+                                        <td>
+                                            <div className={`status-contribution ${row?.Status.Name}`}>
+                                                {row?.Status.Name}
+                                            </div>
+                                        </td>
 
                                         <td colSpan="2">
                                             <ul className="menu-action">
@@ -126,7 +137,7 @@ const ListContribution = () => {
                                                     </Link>
                                                 </li>
                                                 <li>
-                                                    <Link to='#' onClick={() => handleDelete(row.ID)}>
+                                                    <Link onClick={() => handleDelete(row.ID)}>
                                                         <i className="fa-solid fa-trash"></i>
                                                     </Link>
                                                 </li>
@@ -136,10 +147,11 @@ const ListContribution = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={headings.length}>Not Found</td>
+                                    <td colSpan={headings?.length}>Not Found</td>
                                 </tr>
                             )}
                         </tbody>
+
                     </table>
                 </div>
             </div>

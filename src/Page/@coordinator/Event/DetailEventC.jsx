@@ -41,10 +41,6 @@ const DetailEventC = () => {
         navigate(`/coordinator/event/contribution/${id}`);
     }
 
-    if (!event) {
-        return <Loading />;
-    }
-
     // Format Date
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -106,7 +102,7 @@ const DetailEventC = () => {
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Back</button>
-                                <button type='button' onClick={handleSubmit} className="btn">Submit Contribution</button>
+                                <button type='button' onClick={handleSubmit} className="btn">View List Contribution</button>
                             </div>
                             {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}

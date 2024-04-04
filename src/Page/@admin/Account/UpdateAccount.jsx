@@ -8,7 +8,6 @@ const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
 
 const Data = {
     Name: '',
-    Email: '',
     Phone: '',
     Address: '',
     RoleID: '',
@@ -35,33 +34,23 @@ const UpdateAccount = () => {
     // Set Data
     useEffect(() => {
         if (account) {
-            setFormData(account);
+            const { Name, Phone, Address, RoleID, FacultyID } = account;
+            setFormData({ Name, Phone, Address, RoleID, FacultyID });
         }
     }, [account]);
 
+
     // Validate form
     useEffect(() => {
-        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
+        setIsFormValid(Object.values(validationErrors).every(error => error === ''))
     }, [validationErrors, formData]);
 
     const validateField = (name, value) => {
-        let errorMessage = '';
-        switch (name) {
-            case 'Name':
-                errorMessage = value.trim() ? '' : 'Name is required.';
-                break;
-            case 'Email':
-                errorMessage = /^\S+@\S+\.\S+$/.test(value) ? '' : 'Email is invalid.';
-                break;
-            case 'Phone':
-                errorMessage = /^\d{10}$/.test(value) ? '' : 'Phone number must be 10 digits.';
-                break;
-            case 'Address':
-                errorMessage = value.trim() ? '' : 'Address is required.';
-                break;
-            default:
-                break;
-        }
+        const errorMessage = {
+            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid user name: no numbers or special characters, max 15 characters.',
+            Phone: /^\+?[0-9]\d{1,20}$/.test(value) ? '' : '"Invalid phone number format: must be 10 to 20 digits."',
+            Address: /^[A-Za-z0-9\s]{1,300}$/.test(value) ? '' : 'Address must be alphanumeric and under 300 characters.'
+        }[name];
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
@@ -72,17 +61,10 @@ const UpdateAccount = () => {
         validateField(name, value);
     };
 
-    const handleBack = () => {
-        navigate('/admin/account');
-    }
+    const handleBack = () => navigate('/admin/account')
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!isFormValid) {
-            setError("Please fill in all fields correctly.");
-            return;
-        }
 
         setIsLoading(true);
         setError(null);
@@ -93,9 +75,11 @@ const UpdateAccount = () => {
             RoleID: parseInt(formData.RoleID)
         }
 
+        console.log(newFormData)
+
         try {
             const response = await fetch(`${ApiResponse}users/${id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -108,8 +92,8 @@ const UpdateAccount = () => {
             }
             navigate(-1);
         } catch (error) {
-            console.error('Error creating account:', error);
-            setError('Failed to create account. Please try again later.');
+            console.error('Error update account:', error);
+            setError('Failed to update account. Please try again later.');
         } finally {
             setIsLoading(false);
         }
@@ -143,10 +127,10 @@ const UpdateAccount = () => {
                                 label={'Email'}
                                 inputType={'email'}
                                 inputName={'Email'}
-                                value={formData.Email}
+                                value={account.Email}
+                                readOnly={true}
                                 onChange={handleChange}
                             />
-                            {validationErrors.Email && <div className="error">{validationErrors.Email}</div>}
 
                             <FormGroup
                                 label={'Phone'}
@@ -175,7 +159,6 @@ const UpdateAccount = () => {
                                         <option key={role.ID} value={role.ID}>{role.Name}</option>
                                     ))}
                                 </select>
-                                {validationErrors.RoleID && <div className="error">{validationErrors.RoleID}</div>}
                             </div>
 
                             <div className="form-group mb-input">
@@ -185,13 +168,13 @@ const UpdateAccount = () => {
                                     {facultyData && Array.isArray(facultyData.data) && facultyData.data.map((faculty) => (
                                         <option key={faculty.ID} value={faculty.ID}>{faculty.Name}</option>
                                     ))}
+
                                 </select>
-                                {validationErrors.FacultyID && <div className="error">{validationErrors.FacultyID}</div>}
                             </div>
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" disabled={!isFormValid || isLoading} className="btn">Update</button>
+                                <button type="submit" className="btn">Update</button>
                             </div>
                             {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}

@@ -34,7 +34,7 @@ const DetailEventS = () => {
 
     // Handle Event
     const handleBack = () => {
-        navigate('/student/event');
+        navigate(-1)
     }
 
     const handleSubmit = () => {
@@ -105,7 +105,7 @@ const DetailEventS = () => {
                             </div>
 
                             <div className="form-action">
-                                <button type="submit" onClick={handleBack} className="btn">Back</button>
+                                <button type="button" onClick={handleBack} className="btn">Back</button>
                                 <button type='button' onClick={handleSubmit} className="btn">Submit Contribution</button>
                             </div>
                             {isLoading && <Loading />}

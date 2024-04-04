@@ -43,7 +43,8 @@ const ListEvent = () => {
     const handleDelete = async (id) => {
         try {
             const response = await fetch(`${ApiResponse}events/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
             });
 
             if (!response.ok) {
@@ -60,9 +61,7 @@ const ListEvent = () => {
         setSearchTerm(event.target.value);
     };
 
-    const handleCreate = () => {
-        navigate('/admin/event/create');
-    }
+    const handleCreate = () => navigate('/admin/event/create')
 
     // Filter data
     const filteredEvents = events.filter(event =>

@@ -44,32 +44,15 @@ const CreateEvent = () => {
     }, [validationErrors, formData]);
 
     const validateField = (name, value) => {
-        let errorMessage = '';
-        switch (name) {
-            case 'Name':
-                errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Event name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters."';
-                break;
-            case 'Description':
-                errorMessage = value.trim() ? '' : 'Description is required.';
-                break;
-            case 'ClosureDate':
-                // Check if Closure Date is required
-                errorMessage = value.trim() ? '' : 'Closure Date is required.';
-                // Check if Closure Date is before Final Date
-                if (formData.FinalDate && value > formData.FinalDate) {
-                    errorMessage = 'Closure Date must be before Final Date.';
-                }
-                break;
-            case 'FinalDate':
-                errorMessage = value.trim() ? '' : 'Final Date is required.';
-                // Check if Closure Date is before Final Date
-                if (formData.FinalDate && value < formData.FinalDate) {
-                    errorMessage = 'Final Date must be after Final Date.';
-                }
-                break;
-            default:
-                break;
-        }
+        const errorMessage = {
+            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid event name: no numbers or special characters, max 15 chars.',
+            Description: value.trim() ? '' : 'Description is required.',
+            ClosureDate: value.trim() ? '' : 'Closure Date is required.',
+            FinalDate: value.trim() ? '' : 'Final Date is required.',
+            FinalDateBeforeClosureDate: value >= formData.ClosureDate ? '' : 'Final Date must be after Closure Date.',
+            ClosureDateBeforeFinalDate: value <= formData.FinalDate ? '' : 'Closure Date must be before Final Date.'
+        }[name];
+    
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
@@ -80,18 +63,14 @@ const CreateEvent = () => {
         validateField(name, value);
     };
 
-    const handleBack = () => {
-        navigate('/admin/event');
-    }
+    const handleBack = () => navigate('/admin/event');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!isFormValid) {
             setError("Please fill in all fields correctly.");
             return;
         }
-
         setIsLoading(true);
         setError(null);
 

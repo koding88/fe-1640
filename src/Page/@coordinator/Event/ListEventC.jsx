@@ -3,6 +3,7 @@ import useFetch from '../../../CustomHooks/useFetch';
 import { Link } from 'react-router-dom';
 import { ApiResponse } from '../../../Api'
 import Loading from '../../../components/Loading';
+import { jwtDecode } from 'jwt-decode';
 
 const ListEventC = () => {
     // Fetch data
@@ -12,22 +13,17 @@ const ListEventC = () => {
     const [events, setEvents] = useState([]);
     const [searchDate, setSearchDate] = useState('');
 
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
+    const FacultyID = decodedToken.FacultyID;
+
     // Set Data
     useEffect(() => {
         if (eventData) {
-            const data = eventData.filter(event => event.FacultyID === 2) // gia dinh
-            setEvents(data);
+            const filteredEvents = eventData.filter(event => event.FacultyID === FacultyID);
+            setEvents(filteredEvents);
         }
     }, [eventData]);
-
-    if (error) {
-        {
-            console.log('Error fetching data: ', error.message)
-        }
-        return (
-            <Loading />
-        )
-    }
 
     if (!events) {
         return (

@@ -11,7 +11,7 @@ const headings = ['Name', 'Description', 'Number event', 'Guest', 'Action'];
 
 const ListFaculty = () => {
     // Fetch data
-    const { data: facultyData, error } = useFetch(`${ApiResponse}faculties`);
+    const { data: facultyData } = useFetch(`${ApiResponse}faculties`);
     const { data: eventData } = useFetch(`${ApiResponse}events`);
 
     // State
@@ -19,6 +19,7 @@ const ListFaculty = () => {
     const [faculty, setFaculty] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [facultyEvents, setFacultyEvents] = useState([]);
+    const [error, setError] = useState(null);
 
     // Set faculty and count number of events by faculty
     useEffect(() => {

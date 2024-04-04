@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Loading from '../../../components/Loading';
-import FormGroup from '../../../components/FormGroup';
-import useFetch from '../../../CustomHooks/useFetch';
+import Loading from '../../components/Loading';
+import FormGroup from '../../components/FormGroup';
+import useFetch from '../../CustomHooks/useFetch';
 
 const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
 
@@ -15,7 +15,7 @@ const Data = {
     FacultyID: ''
 }
 
-const CreateAccount = () => {
+const Profile = () => {
     const navigate = useNavigate();
     // Data
     const facultyData = useFetch(`${ApiResponse}faculties`);
@@ -34,15 +34,25 @@ const CreateAccount = () => {
     }, [validationErrors, formData]);
 
     const validateField = (name, value) => {
-        const errorMessage = {
-            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid user name: no numbers or special characters, max 15 characters.',
-            Email: /\S+@\S+\.\S+/.test(value) ? '' : 'Email requires @ and no other special characters.',
-            Phone: /^\+?[0-9]\d{1,20}$/.test(value) ? '' : '"Invalid phone number format: must be 10 to 20 digits."',
-            Address: /^[A-Za-z0-9\s]{1,300}$/.test(value) ? '' : 'Address must be alphanumeric and under 300 characters.'
-        }[name];
+        let errorMessage = '';
+        switch (name) {
+            case 'Name':
+                errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'User name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters.';
+                break;
+            case 'Email':
+                errorMessage = /\S+@\S+\.\S+/.test(value) ? '' : 'Email must contain `@` and cannot contain other special characters..';
+                break;
+            case 'Phone':
+                errorMessage = /^\+?[0-9]\d{1,20}$/.test(value) ? '' : 'Phone number must be 10 digits.';
+                break;
+            case 'Address':
+                errorMessage = /^[A-Za-z0-9\s]{1,300}$/.test(value) ? '' : 'Address is invalid, cannot contain special characters, and must have a maximum of 50 characters.';
+                break;
+            default:
+                break;
+        }
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
-
 
     // Handle Event
     const handleChange = (e) => {
@@ -51,14 +61,22 @@ const CreateAccount = () => {
         validateField(name, value);
     };
 
-    const handleBack = () => navigate('/admin/account');
+    const handleBack = () => {
+        navigate('/admin/account');
+    }
+
+    const handlePassword = () => {
+        navigate('/changepassword');
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // if (!isFormValid) {
-        //     setError("Please fill in all fields correctly.");
-        //     return;
-        // }
+
+        if (!isFormValid) {
+            setError("Please fill in all fields correctly.");
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
 
@@ -95,7 +113,7 @@ const CreateAccount = () => {
         <div className="box">
             <div className="row-1">
                 <div className="header">
-                    <div className="title">List Account</div>
+                    <div className="title">Profile</div>
                 </div>
             </div>
 
@@ -162,9 +180,14 @@ const CreateAccount = () => {
                                 {validationErrors.FacultyID && <div className="error">{validationErrors.FacultyID}</div>}
                             </div>
 
-                            <div className="form-action">
-                                <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" className="btn">Create</button>
+                            <div className="form-action profile">
+                                <div className="change-pass">
+                                    <button type="button" onClick={handlePassword}>Change Password</button>
+                                </div>
+
+                                <button type="button" onClick={handleBack} className="btn">Cancel</button>
+                                <button type="submit" disabled className="btn">Create</button>
+
                             </div>
                             {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
@@ -176,4 +199,4 @@ const CreateAccount = () => {
     );
 };
 
-export default CreateAccount;
+export default Profile;

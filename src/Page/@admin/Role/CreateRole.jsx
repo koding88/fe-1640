@@ -25,17 +25,11 @@ const CreateRole = () => {
     }, [validationErrors, formData]);
 
     const validateField = (name, value) => {
-        let errorMessage = '';
-        switch (name) {
-            case 'Name':
-                errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Role name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters.';
-                break;
-            case 'Description':
-                errorMessage = value.trim() ? '' : 'Description is required.';
-                break;
-            default:
-                break;
-        }
+        const errorMessage = {
+            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid role name: no numbers or special characters, max 15 chars',
+            Description: value.trim() ? '' : 'Description is required'
+        }[name];
+
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
@@ -46,9 +40,7 @@ const CreateRole = () => {
         validateField(name, value);
     };
 
-    const handleBack = () => {
-        navigate('/admin/role');
-    }
+    const handleBack = () => navigate('/admin/role')
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -89,7 +81,11 @@ const CreateRole = () => {
                 </div>
             </div>
             <div className="row-2">
-                <div className="box">
+                <div
+                    style={{
+                        minHeight: '580px',
+                    }}
+                    className="box">
                     <div className="box-content">
                         <form onSubmit={handleSubmit}>
                             <FormGroup

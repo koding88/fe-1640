@@ -11,87 +11,78 @@ const Data = {
 const LoginAM = () => {
     // State
     const [formData, setFormData] = useState(Data);
-    const [isFormValid, setIsFormValid] = useState(false);
     const [error, setError] = useState(null);
     const [validationErrors, setValidationErrors] = useState({});
-    const [loginError, setLoginError] = useState(false)
     const navigate = useNavigate();
 
     // Validate form
-    useEffect(() => {
-        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
-    }, [validationErrors, formData]);
+    const isFormValid = Object.values(validationErrors).every(error => !error) &&
+        Object.values(formData).every(value => value !== '');
 
-    // Validate field
     const validateField = (name, value) => {
-        let errorMessage = '';
-        switch (name) {
-            case 'email':
-                errorMessage = value.trim() ? '' : 'Email is required.';
-                break;
-            case 'password':
-                errorMessage = value.trim() ? '' : 'Password is required.';
-                break;
-            default:
-                break;
-        }
+        const errorMessage = {
+            email: /\S+@\S+\.\S+/.test(value) ? '' : 'Email requires @ and no other special characters.',
+            // password: /(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}/.test(value) ? '' : 'Password must be at least 8 characters with letters and numbers.'
+        }[name];
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
-    };
+    }
 
-    // Handle change
+    useEffect(() => {
+        isFormValid && setError(null);
+    }, [isFormValid]);
+
+    // Handle Event
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
         validateField(name, value);
-    }
+    };
 
-    // Handle back
-    const handleBack = () => {
-        navigate('/login');
-    }
+    const handleBack = () => navigate('/login');
 
-    // Handle submit
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!isFormValid) {
-            setError("Please fill in all fields correctly.");
-            return;
-        }
-
+        if (!isFormValid) return setError("Please fill in all fields correctly.");
+        const newFormData = { ...formData, FacultyID: parseInt(formData.FacultyID) };
         try {
             const response = await fetch(`${ApiResponse}auth/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newFormData)
             });
             const data = await response.json();
-
             if (response.ok) {
                 localStorage.setItem('token', data.token);
-                window.location.href = '/admin/account'
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                const roleID = data.user.RoleID;
+                const rolePaths = {
+                    1: '/admin/account',
+                    2: '/manager/dashboard',
+                    3: '/coordinator/dashboard',
+                    4: '/student/event'
+                };
+
+                const rolePath = rolePaths[roleID];
+                if (rolePath) {
+                    navigate(rolePath);
+                } else {
+                    setError('Unknown role.');
+                }
+                window.location.reload();
+
             } else {
-                setLoginError(true);
                 setError(data.message.message);
             }
         } catch (error) {
             console.error('Error logging in: ', error);
-            setLoginError(true);
             setError('An error occurred while logging in. Please try again later.');
         }
     };
 
-    // useEffect(() => {
-    //     if (loginError) {
-    //         window.location.href = '/login/admin'
-    //     }
-    // }, [loginError]);
-
     return (
         <div className="login-staff">
             <div className="header">
-                <div className="logo">
+                <div className="logo-1">
                     <img src={Logo1} alt="" />
                 </div>
                 <div className="heading">

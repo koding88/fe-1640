@@ -9,35 +9,17 @@ import Loading from '../../../components/Loading';
 const headings = ['Full Name', 'Email', 'Faculty', 'Role', 'Action'];
 
 const ListAccount = () => {
-    // Fetch data
-    const { data: accountData, error } = useFetch(`${ApiResponse}users/?depth=1`);
-
-    // State
     const navigate = useNavigate();
+    const { data: accountData, error } = useFetch(`${ApiResponse}users/?depth=1`);
     const [accounts, setAccounts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Set Data
     useEffect(() => {
         if (accountData) {
             setAccounts(accountData);
         }
     }, [accountData]);
 
-    if (error) {
-        {
-            console.log('Error fetching data: ', error.message)
-        }
-        return (
-            <Loading />
-        )
-    }
-
-    if (!accounts) {
-        return <Loading />
-    }
-
-    // Handle Event
     const handleDelete = async (id) => {
         try {
             const response = await fetch(`${ApiResponse}users/${id}`, {
@@ -47,7 +29,6 @@ const ListAccount = () => {
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
             });
-
             if (!response.ok) {
                 const data = response.json();
                 throw new Error(data.then(data => (data.message)));
@@ -62,11 +43,8 @@ const ListAccount = () => {
         setSearchTerm(event.target.value);
     };
 
-    const handleCreate = () => {
-        navigate('/admin/account/create');
-    };
+    const handleCreate = () => navigate('/admin/account/create');
 
-    // Filter data
     const filteredAccounts = accounts.filter(account =>
         account.Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         account.Email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -78,14 +56,11 @@ const ListAccount = () => {
                 <div className="header">
                     <div className="title">List Account</div>
                 </div>
-
                 <Search placeholder={'Search Account'} value={searchTerm} onChange={handleSearchChange} />
-
                 <div className="create">
                     <button className="custom-button" onClick={handleCreate}>Create</button>
                 </div>
             </div>
-
             <div className="row-2 list">
                 <div className="box">
                     <table>
@@ -100,24 +75,11 @@ const ListAccount = () => {
                                         <td>{row.Email}</td>
                                         <td>{(row.Faculty?.Name)}</td>
                                         <td>{row.Role?.Name}</td>
-
                                         <td colSpan="2">
                                             <ul className="menu-action">
-                                                <li>
-                                                    <Link to={`detail/${row.ID}`}>
-                                                        <i className="fa-solid fa-circle-info"></i>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link to={`update/${row.ID}`}>
-                                                        <i className="fa-solid fa-pen-to-square"></i>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link to='#' onClick={() => handleDelete(row.ID)}>
-                                                        <i className="fa-solid fa-trash"></i>
-                                                    </Link>
-                                                </li>
+                                                <li><Link to={`detail/${row.ID}`}><i className="fa-solid fa-circle-info"></i></Link></li>
+                                                <li><Link to={`update/${row.ID}`}><i className="fa-solid fa-pen-to-square"></i></Link></li>
+                                                <li><Link to='#' onClick={() => handleDelete(row.ID)}><i className="fa-solid fa-trash"></i></Link></li>
                                             </ul>
                                         </td>
                                     </tr>

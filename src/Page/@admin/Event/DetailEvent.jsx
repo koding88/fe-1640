@@ -33,9 +33,8 @@ const DetailEvent = () => {
     }, [event]);
 
     // Handle Event
-    const handleBack = () => {
-        navigate('/admin/event');
-    }
+    const handleBack = () => navigate('/admin/event')
+    
 
     if (!event) {
         return <Loading />;

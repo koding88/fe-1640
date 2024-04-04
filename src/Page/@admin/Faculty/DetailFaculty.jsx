@@ -33,9 +33,7 @@ const DetailFaculty = () => {
     }, [faculty]);
 
     // Handle Event
-    const handleBack = () => {
-        navigate('/admin/faculty');
-    }
+    const handleBack = () => navigate('/admin/faculty')
 
     if (!faculty) {
         return (

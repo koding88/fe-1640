@@ -35,30 +35,23 @@ const UpdateFaculty = () => {
     }, [faculty]);
 
     // Validate form
-    useEffect(() => {
-        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
-    }, [validationErrors, formData]);
+    // useEffect(() => {
+    //     setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
+    // }, [validationErrors, formData]);
 
-    const validateField = (name, value) => {
-        let errorMessage = '';
-        switch (name) {
-            case 'Name':
-                errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Faculty name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters.';
-                break;
-            case 'Description':
-                errorMessage = value.length < 3000 ? '' : 'Description is invalid, must have a maximum of 3000 characters.';
-                break;
-            default:
-                break;
-        }
-        setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
-    };
+    // const validateField = (name, value) => {
+    //     const errorMessage = {
+    //         Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid faculty name: no numbers or special characters, max 15 chars',
+    //         Description: value.length < 3000 ? '' : 'Description is invalid, must have a maximum of 3000 characters.'
+    //     }[name];
+    //     setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
+    // };
 
     // Handle Event
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
-        validateField(name, value);
+        // validateField(name, value);
     };
 
     const handleBack = () => {
@@ -68,15 +61,17 @@ const UpdateFaculty = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!isFormValid) {
-            setError("Please fill in all fields correctly.");
-            return;
-        }
+        // if (!isFormValid) {
+        //     setError("Please fill in all fields correctly.");
+        //     return;
+        // }
 
         const newFormData = {
             ...formData,
             IsEnabledGuest: formData.IsEnabledGuest === 'true' ? true : false,
         }
+
+        console.log(newFormData)
 
         setIsLoading(true);
         setError(null);
@@ -146,7 +141,7 @@ const UpdateFaculty = () => {
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" disabled={!isFormValid || isLoading} className="btn">Update</button>
+                                <button type="submit" className="btn">Update</button>
                             </div>
                             {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}

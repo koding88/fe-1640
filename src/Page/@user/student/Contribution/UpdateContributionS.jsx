@@ -1,107 +1,117 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormGroup from '../../../../components/FormGroup';
 import Loading from '../../../../components/Loading';
+import { ApiResponse } from '../../../../Api';
+import useFetch from '../../../../CustomHooks/useFetch';
+import { jwtDecode } from 'jwt-decode';
 
 const Data = {
-    Name: '',
-    Content: '',
+    Name: "",
+    Content: "",
     IsPublic: false,
     IsApproved: false,
     EventID: 0,
     UserID: 0,
-    StatusID: 0
+    StatusID: 1,
+    filesPath: [],
+    file2: []
 }
 
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
-
 const UpdateContributionS = () => {
-    // State
     const [formData, setFormData] = useState(Data);
-    const [isFormValid, setIsFormValid] = useState(false);
-    const [validationErrors, setValidationErrors] = useState(Data);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const { id } = useParams();
 
-    // Validate form
+    const { data: contribution } = useFetch(`${ApiResponse}contributions/${id}?depth=1`);
+    const textFile = contribution?.TextFiles[0]?.Url;
+    const imageFile = contribution?.ImageFiles[0]?.Url;
+
+    const EventID = contribution?.EventID;
+
+
     useEffect(() => {
-        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
-    }, [validationErrors, formData]);
-
-    const validateField = (name, value) => {
-        let errorMessage = '';
-        switch (name) {
-            case 'Name':
-                errorMessage = value.trim() ? '' : 'Name is required.';
-                break;
-            case 'Content':
-                errorMessage = value.trim() ? '' : 'Description is required.';
-                break;
-            default:
-                break;
+        if (contribution) {
+            setFormData(contribution);
         }
-        setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
-    };
+    }, [contribution])
 
-    // Handle Event
+    // Decode token
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
+
+    // get userID from token
+    const UserID = decodedToken.id;
+
+    if (!contribution) {
+        return <Loading />
+    }
+
+    // Handle event
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({ ...prevState, [name]: value }));
-        validateField(name, value);
-        const inputElement = e.target;
-        if (validationErrors[name]) {
-            inputElement.classList.remove('valid');
-            inputElement.classList.add('invalid');
+        const { name, value, files } = e.target;
+
+        if (name === 'filesPath' || name === 'file2') {
+            const selectedFiles = Array.from(files);
+
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                [name]: selectedFiles
+            }));
         } else {
-            inputElement.classList.remove('invalid');
-            inputElement.classList.add('valid');
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                [name]: value
+            }));
         }
     };
 
     const handleBack = () => {
-        navigate(-1) // Go back | Need to fix
+        navigate(-1);
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const formDataToSend = new FormData();
+        formDataToSend.append('Name', formData.Name);
+        formDataToSend.append('Content', formData.Content);
+        formDataToSend.append('IsPublic', formData.IsPublic);
+        formDataToSend.append('IsApproved', formData.IsApproved);
+        formDataToSend.append('EventID', EventID);
+        formDataToSend.append('UserID', UserID);
+        formDataToSend.append('StatusID', 1);
 
-        if (!isFormValid) {
-            setError("Please fill in all fields correctly.");
-            return;
-        }
-
-        const newFormData = {
-            ...formData,
-            IsPublic: formData.IsPublic === 'true' ? true : false,
-            IsApproved: formData.IsApproved === 'true' ? true : false,
-            EventID: parseInt(formData.EventID),
-            UserID: parseInt(formData.UserID),
-            StatusID: parseInt(formData.StatusID),
-        }
+        formData.filesPath?.forEach(file => {
+            formDataToSend.append('filesPath', file);
+        });
+        formData.file2?.forEach(file => {
+            formDataToSend.append('file2', file);
+        });
 
         setIsLoading(true);
         setError(null);
 
-        // console.log(newFormData)
-
         try {
-            const response = await fetch(`${ApiResponse}contributions`, {
-                method: 'POST',
+            const response = await fetch(`${ApiResponse}contributions/${id}`, {
+                method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
-                body: JSON.stringify(newFormData)
+                body: formDataToSend
             });
-            console.log(response)
+
             if (!response.ok) {
-                throw new Error('Failed to create contribution');
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
-            navigate(-1); // Need to fix
+
+            navigate(-1);
         } catch (error) {
-            console.error('Error creating contribution:', error);
-            setError('Failed to create contribution. Please try again later.');
+            console.error('Error update contribution:', error);
+            setError('Failed to update contribution. Please try again later.');
         } finally {
             setIsLoading(false);
         }
@@ -117,7 +127,9 @@ const UpdateContributionS = () => {
             <div className="row-2">
                 <div className="box">
                     <div className="box-content contribution">
-                        <form onSubmit={handleSubmit} encType='multipart/form-data'>
+                        <form onSubmit={handleSubmit} encType='multipart/form-data'
+                            style={{ width: '100%' }}
+                        >
                             <FormGroup
                                 label={'Name'}
                                 inputType={'text'}
@@ -125,47 +137,46 @@ const UpdateContributionS = () => {
                                 value={formData.Name}
                                 onChange={handleChange}
                             />
-                            {validationErrors.Name && <div className="error">{validationErrors.Name}</div>}
 
                             <div className="form-group">
                                 <label>Content</label>
                                 <textarea required name="Content" cols="30" rows="10" value={formData.Content} onChange={handleChange}></textarea>
-                                {validationErrors.Content && <div className="error">{validationErrors.Content}</div>}
                             </div>
 
-                            <FormGroup
-                                label={'Image'}
-                                inputType={'file'}
-                                inputName={'Image'}
-                                value={formData.Image}
-                                addClass={'input-file'}
-                                onChange={handleChange}
-                            />
-                            {validationErrors.Image && <div className="error">{validationErrors.Image}</div>}
+                            <div className="form-group">
+                                <label>Image</label>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept='image/*'
+                                    name="filesPath"
+                                    className='input-file'
+                                    onChange={handleChange}
+                                />
+                            </div>
 
-                            <FormGroup
-                                label={'File'}
-                                inputType={'file'}
-                                inputName={'File'}
-                                value={formData.File}
-                                addClass={'input-file'}
-                                onChange={handleChange}
-                            />
-                            {validationErrors.File && <div className="error">{validationErrors.File}</div>}
-                            <div className='mb-input'></div>
+                            <div className="form-group">
+                                <label>File</label>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept='.docx'
+                                    name="file2"
+                                    className='input-file'
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            <div className="mb-input"></div>
 
                             <div className="form-action">
-                                <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" disabled={!isFormValid || isLoading} className="btn">Create</button>
+                                <button type="button" onClick={handleBack} className="btn">Cancel</button>
+                                <button type="button" className="btn" onClick={handleSubmit}>Update</button>
                             </div>
+
                             {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
-                        <div className="image-preview"
-                            style={{ backgroundImage: 'url(' + formData.Image + ')' }}>
-                            Preview image
-                        </div>
-
                     </div>
                 </div>
             </div>
