@@ -35,23 +35,30 @@ const UpdateFaculty = () => {
     }, [faculty]);
 
     // Validate form
-    // useEffect(() => {
-    //     setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
-    // }, [validationErrors, formData]);
+    useEffect(() => {
+        setIsFormValid(Object.values(validationErrors).every(error => error === ''));
+    }, [validationErrors, formData]);
 
-    // const validateField = (name, value) => {
-    //     const errorMessage = {
-    //         Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid faculty name: no numbers or special characters, max 15 chars',
-    //         Description: value.length < 3000 ? '' : 'Description is invalid, must have a maximum of 3000 characters.'
-    //     }[name];
-    //     setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
-    // };
+    const validateField = (name, value) => {
+        let errorMessage = '';
+        switch (name) {
+            case 'Name':
+                errorMessage = value.trim() && /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid faculty name: no numbers or special characters, max 15 chars';
+                break;
+            case 'Description':
+                errorMessage = value.length < 3000 ? '' : 'Description is invalid, must have a maximum of 3000 characters.'
+                break;
+            default:
+                break;
+        }
+        setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
+    };
 
     // Handle Event
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
-        // validateField(name, value);
+        validateField(name, value);
     };
 
     const handleBack = () => {
@@ -61,17 +68,15 @@ const UpdateFaculty = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // if (!isFormValid) {
-        //     setError("Please fill in all fields correctly.");
-        //     return;
-        // }
+        if (!isFormValid) {
+            setError("Please fill in all fields correctly.");
+            return;
+        }
 
         const newFormData = {
             ...formData,
             IsEnabledGuest: formData.IsEnabledGuest === 'true' ? true : false,
         }
-
-        console.log(newFormData)
 
         setIsLoading(true);
         setError(null);
@@ -86,8 +91,9 @@ const UpdateFaculty = () => {
                 body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                const data = response.json();
-                data.then(data => setError(data.message))
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
             navigate('/admin/faculty');
         } catch (error) {
@@ -112,38 +118,44 @@ const UpdateFaculty = () => {
                 </div>
             </div>
             <div className="row-2">
-                <div className="box">
+                <div className="box"
+                     style={{
+                         height: 'calc(100vh - 150px)'
+                     }}
+                >
                     <div className="box-content">
                         <form onSubmit={handleSubmit}>
                             <FormGroup
                                 label={'Name'}
                                 inputType={'text'}
                                 inputName={'Name'}
-                                value={formData.Name}
+                                value={formData?.Name}
                                 onChange={handleChange}
                             />
                             {validationErrors.Name && <div className="error">{validationErrors.Name}</div>}
 
                             <div className="form-group">
                                 <label>Description</label>
-                                <textarea required name="Description" cols="30" rows="10" value={formData.Description} onChange={handleChange}></textarea>
-                                {validationErrors.Description && <div className="error">{validationErrors.Description}</div>}
+                                <textarea required name="Description" cols="30" rows="10" value={formData?.Description}
+                                          onChange={handleChange}></textarea>
+                                {validationErrors.Description &&
+                                    <div className="error">{validationErrors.Description}</div>}
                             </div>
 
                             <div className="form-group mb-input">
                                 <label>Guest</label>
-                                <select value={formData.IsEnabledGuest} onChange={handleChange} className='form-control' name="IsEnabledGuest">
-                                    <option value="" hidden>Select Guest</option>
-                                    <option value={true}>True</option>
-                                    <option value={false}>False</option>
+                                <select value={formData?.IsEnabledGuest} onChange={handleChange}
+                                        className='form-control'
+                                        name="IsEnabledGuest">
+                                    <option value='true'>True</option>
+                                    <option value='false'>False</option>
                                 </select>
                             </div>
 
                             <div className="form-action">
-                                <button type="submit" onClick={handleBack} className="btn">Cancel</button>
+                            <button type="submit" onClick={handleBack} className="btn">Cancel</button>
                                 <button type="submit" className="btn">Update</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

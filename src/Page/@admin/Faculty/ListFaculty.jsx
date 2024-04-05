@@ -109,7 +109,7 @@ const ListFaculty = () => {
                                 filteredFaculty.map((row, index) => (
                                     <tr key={index}>
                                         <td>{row.Name}</td>
-                                        <td className="description">{row.Description}</td>
+                                        <td className="description">{row?.Description}</td>
                                         <td className="number-event">{facultyEvents[row.ID] || 0}</td>
                                         <td>
                                             <span className={`guest-status ${row.IsEnabledGuest ? "active" : ""}`}>

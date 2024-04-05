@@ -14,7 +14,6 @@ const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
 const DetailRole = () => {
     // State
     const [formData, setFormData] = useState(Data);
-    const [isLoading] = useState(false);
     const [error] = useState(null);
 
     // ID, Redirect
@@ -60,18 +59,17 @@ const DetailRole = () => {
                                 label={'Name'}
                                 inputType={'text'}
                                 inputName={'Name'}
-                                value={formData.Name}
+                                value={formData?.Name}
                             />
 
                             <div className="form-group">
                                 <label>Description</label>
-                                <textarea required name="Description" readOnly cols="30" rows="10" value={formData.Description}></textarea>
+                                <textarea required name="Description" readOnly cols="30" rows="10" value={formData?.Description}></textarea>
                             </div>
 
                             <div className="form-action">
-                                <button type="submit" onClick={handleBack} className="btn">Cancel</button>
+                                <button type="submit" onClick={handleBack} className="btn">Back</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

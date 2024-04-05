@@ -40,19 +40,31 @@ const CreateEvent = () => {
 
     // Validate form
     useEffect(() => {
-        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
+        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value));
     }, [validationErrors, formData]);
 
+
     const validateField = (name, value) => {
-        const errorMessage = {
-            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid event name: no numbers or special characters, max 15 chars.',
-            Description: value.trim() ? '' : 'Description is required.',
-            ClosureDate: value.trim() ? '' : 'Closure Date is required.',
-            FinalDate: value.trim() ? '' : 'Final Date is required.',
-            FinalDateBeforeClosureDate: value >= formData.ClosureDate ? '' : 'Final Date must be after Closure Date.',
-            ClosureDateBeforeFinalDate: value <= formData.FinalDate ? '' : 'Closure Date must be before Final Date.'
-        }[name];
-    
+        let errorMessage = '';
+        switch (name) {
+            case 'Name':
+                errorMessage = value.trim() || /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid event name: no numbers or special characters, max 15 chars.';
+                break;
+            case 'Description':
+                errorMessage = value.trim() ? '' : 'Description is required.';
+                break;
+            case 'FacultyID':
+                errorMessage = value ? '' : 'Faculty is required.';
+                break;
+            case 'ClosureDate':
+                errorMessage = value <= formData.FinalDate ? '' : 'Closure Date must be before Final Date.';
+                break
+            case 'FinalDate':
+                errorMessage =  value >= formData.ClosureDate ? '' : 'Final Date must be after Closure Date.';
+                break
+            default:
+                break;
+        }
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
@@ -91,8 +103,9 @@ const CreateEvent = () => {
                 body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                const data = response.json();
-                data.then(data => setError(data.message))
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
             navigate('/admin/event');
         } catch (error) {
@@ -204,9 +217,8 @@ const CreateEvent = () => {
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" disabled={!isFormValid || isLoading} className="btn">Create</button>
+                                <button type="submit" disabled={!isFormValid} className="btn">Create</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

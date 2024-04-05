@@ -61,8 +61,9 @@ const CreateRole = () => {
                 body: JSON.stringify(formData)
             });
             if (!response.ok) {
-                const data = response.json();
-                data.then(data => setError(data.message))
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
             navigate('/admin/role');
         } catch (error) {
@@ -108,7 +109,6 @@ const CreateRole = () => {
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
                                 <button type="submit" disabled={!isFormValid || isLoading} className="btn">Create</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

@@ -91,11 +91,11 @@ const DetailAccount = () => {
 
                             <div className="form-group">
                                 <label>Role</label>
-                                <input type="text" className='form-control' readOnly value={account.Role.Name} />
+                                <input type="text" className='form-control' readOnly value={account?.Role?.Name} />
                             </div>
                             <div className="form-group mb-input">
                                 <label>Faculty</label>
-                                <input type="text" className='form-control' readOnly value={account.Faculty.Name} />
+                                <input type="text" className='form-control' readOnly value={account?.Faculty?.Name} />
                             </div>
 
                             <div className="form-action">

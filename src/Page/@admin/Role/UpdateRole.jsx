@@ -77,8 +77,9 @@ const UpdateRole = () => {
                 body: JSON.stringify(formData)
             });
             if (!response.ok) {
-                const data = response.json();
-                data.then(data => setError(data.message))
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
             navigate('/admin/role');
         } catch (error) {
@@ -113,22 +114,21 @@ const UpdateRole = () => {
                                 label={'Name'}
                                 inputType={'text'}
                                 inputName={'Name'}
-                                value={formData.Name}
+                                value={formData?.Name}
                                 onChange={handleChange}
                             />
                             {validationErrors.Name && <div className="error">{validationErrors.Name}</div>}
 
                             <div className="form-group">
                                 <label>Description</label>
-                                <textarea required name="Description" cols="30" rows="10" value={formData.Description} onChange={handleChange}></textarea>
+                                <textarea required name="Description" cols="30" rows="10" value={formData?.Description} onChange={handleChange}></textarea>
                                 {validationErrors.Description && <div className="error">{validationErrors.Description}</div>}
                             </div>
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" disabled={!isFormValid || isLoading} className="btn">Update</button>
+                                <button type="submit" disabled={!isFormValid} className="btn">Update</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

@@ -22,15 +22,21 @@ const CreateFaculty = () => {
 
     // Validate form
     useEffect(() => {
-        setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !== ''));
+        setIsFormValid(Object.values(validationErrors).every(error => error === ''));
     }, [validationErrors, formData]);
 
     const validateField = (name, value) => {
-        const errorMessage = {
-            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid faculty name: no numbers or special characters, max 15 chars',
-            Description: value.length < 3000 ? '' : 'Description is invalid, must have a maximum of 3000 characters.'
-        }[name];
-
+        let errorMessage = '';
+        switch (name) {
+            case 'Name':
+                errorMessage = value.trim() && /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid faculty name: no numbers or special characters, max 15 chars';
+                break;
+            case 'Description':
+                errorMessage = value.length < 3000 ? '' : 'Description is invalid, must have a maximum of 3000 characters.'
+                break;
+            default:
+                break;
+        }
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
@@ -68,8 +74,9 @@ const CreateFaculty = () => {
                 body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                const data = response.json();
-                data.then(data => setError(data.message))
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
             navigate('/admin/faculty');
         } catch (error) {
@@ -88,7 +95,11 @@ const CreateFaculty = () => {
                 </div>
             </div>
             <div className="row-2">
-                <div className="box">
+                <div className="box"
+                style={{
+                    height: 'calc(100vh - 150px)'
+                }}
+                >
                     <div className="box-content">
                         <form onSubmit={handleSubmit}>
                             <FormGroup
@@ -110,16 +121,15 @@ const CreateFaculty = () => {
                                 <label>Guest</label>
                                 <select value={formData.IsEnabledGuest} onChange={handleChange} className='form-control' name="IsEnabledGuest">
                                     <option value="" hidden>Select Guest</option>
-                                    <option value={true}>True</option>
-                                    <option value={false}>False</option>
+                                    <option value='true'>True</option>
+                                    <option value='false'>False</option>
                                 </select>
                             </div>
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" disabled={!isFormValid || isLoading} className="btn">Create</button>
+                                <button type="submit" className="btn" disabled={!isFormValid}>Create</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

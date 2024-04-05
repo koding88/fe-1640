@@ -46,11 +46,23 @@ const UpdateAccount = () => {
     }, [validationErrors, formData]);
 
     const validateField = (name, value) => {
-        const errorMessage = {
-            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid user name: no numbers or special characters, max 15 characters.',
-            Phone: /^\+?[0-9]\d{1,20}$/.test(value) ? '' : '"Invalid phone number format: must be 10 to 20 digits."',
-            Address: /^[A-Za-z0-9\s]{1,300}$/.test(value) ? '' : 'Address must be alphanumeric and under 300 characters.'
-        }[name];
+        let errorMessage = '';
+        switch (name) {
+            case 'Name':
+                errorMessage = value.trim() && /^[A-Za-z\s]{1,15}$/.test(value)  ? '' : 'Name is required and must be less than 15 characters.';
+                break;
+            case 'Email':
+                errorMessage = /^\S+@\S+\.\S+$/.test(value) ? '' : 'Email is invalid.';
+                break;
+            case 'Phone':
+                errorMessage = /^\+?[0-9]\d{1,20}$/.test(value) ? '' : 'Phone is invalid';
+                break;
+            case 'Address':
+                errorMessage = value.length < 300 ? '' : 'Address is invalid, must have a maximum of 300 characters.';
+                break;
+            default:
+                break;
+        }
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
@@ -65,6 +77,11 @@ const UpdateAccount = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!isFormValid) {
+            setError("Please fill in all fields correctly.");
+            return;
+        }
 
         setIsLoading(true);
         setError(null);
@@ -87,8 +104,9 @@ const UpdateAccount = () => {
                 body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                const data = response.json();
-                data.then(data => setError(data.message))
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
             navigate(-1);
         } catch (error) {
@@ -163,7 +181,7 @@ const UpdateAccount = () => {
 
                             <div className="form-group mb-input">
                                 <label>Faculty</label>
-                                <select value={formData.FacultyID} onChange={handleChange} className='form-control' required name="FacultyID">
+                                <select value={formData.FacultyID} onChange={handleChange} className='form-control' name="FacultyID">
                                     <option value="" hidden>Select Faculty</option>
                                     {facultyData && Array.isArray(facultyData.data) && facultyData.data.map((faculty) => (
                                         <option key={faculty.ID} value={faculty.ID}>{faculty.Name}</option>
@@ -176,7 +194,6 @@ const UpdateAccount = () => {
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
                                 <button type="submit" className="btn">Update</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

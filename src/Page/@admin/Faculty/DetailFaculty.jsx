@@ -49,30 +49,34 @@ const DetailFaculty = () => {
                 </div>
             </div>
             <div className="row-2">
-                <div className="box">
+                <div className="box"
+                     style={{
+                         height: 'calc(100vh - 150px)'
+                     }}
+                >
                     <div className="box-content">
                         <form>
                             <FormGroup
                                 label={'Name'}
                                 inputType={'text'}
                                 inputName={'Name'}
-                                value={formData.Name}
+                                value={formData?.Name}
                             />
 
                             <div className="form-group">
                                 <label>Description</label>
-                                <textarea required name="Description" readOnly cols="30" rows="10" value={formData.Description}></textarea>
+                                <textarea required name="Description" readOnly cols="30" rows="10"
+                                          value={formData?.Description}></textarea>
                             </div>
 
                             <div className="form-group mb-input">
                                 <label>Guest</label>
-                                <input type="text" className='select-guest' readOnly value={formData.IsEnabledGuest} />
+                                <input type="text" className='select-guest' readOnly value={formData.IsEnabledGuest}/>
                             </div>
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

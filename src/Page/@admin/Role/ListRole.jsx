@@ -25,14 +25,6 @@ const ListRole = () => {
         }
     }, [roleData]);
 
-    if (error) {
-        {
-            console.log('Error fetching data: ', error.message)
-        }
-        return (
-            <Loading />
-        )
-    }
     if (!roleData) {
         return (
             <Loading />
@@ -49,7 +41,6 @@ const ListRole = () => {
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
             });
-
             if (!response.ok) {
                 const data = response.json();
                 throw new Error(data.then(data => (data.message)));
