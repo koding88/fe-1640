@@ -44,8 +44,6 @@ const DetailContributionS = () => {
     // Fetch data
     const { data: contribution } = useFetch(`${ApiResponse}contributions/${id}?depth=1&file=true&comment=true`);
 
-    console.log(contribution)
-
     if (contribution) {
         var textFile = contribution?.TextFiles[0]?.Url;
         var imageFile = contribution?.ImageFiles[0]?.Url;

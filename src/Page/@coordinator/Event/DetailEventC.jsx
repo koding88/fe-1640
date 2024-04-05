@@ -102,7 +102,7 @@ const DetailEventC = () => {
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Back</button>
-                                <button type='button' onClick={handleSubmit} className="btn">View List Contribution</button>
+                                <button type='button' onClick={handleSubmit} className="btn">View Submission</button>
                             </div>
                             {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}

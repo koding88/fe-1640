@@ -25,16 +25,6 @@ const ListContributionPC = () => {
         }
     }, [contributionData]);
 
-    // Comment no fetch data
-    // if (error) {
-    //     {
-    //         console.log('Error fetching data: ', error.message)
-    //     }
-    //     return (
-    //         <Loading />
-    //     )
-    // }
-
     if (!contribution) {
         return (
             <Loading />

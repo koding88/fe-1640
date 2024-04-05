@@ -93,9 +93,11 @@ const UpdateContributionS = () => {
         setIsLoading(true);
         setError(null);
 
+        console.log(formDataToSend, 'formDataToSend')
+
         try {
             const response = await fetch(`${ApiResponse}contributions/${id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
