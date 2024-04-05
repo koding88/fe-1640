@@ -155,17 +155,17 @@ function App() {
                       <Route path='/coordinator/event/contribution/:id' element={<ListContributionC />} />
                       <Route path='/coordinator/event/contribution/:id/update/:id' element={<UpdateContributionC />} />
                       <Route path='/coordinator/event/contribution/:id/detail/:id' element={<DetailContributionC />} />
-                      <Route path='/coordinator/public' element={<PublicContributionPC />} />
-                      <Route path='/coordinator/public/detail/:id' element={<DetailContributionPC />} />
+                      <Route path='/coordinator/public/:id' element={<PublicContributionPC />} />
+                      <Route path='/coordinator/public/:id/detail/:id' element={<DetailContributionPC />} />
 
                       {/* Manager */}
                       <Route path='/manager/event' element={<ListEventM />} />
                       <Route path='/manager/event/detail/:id' element={<DetailEventM />} />
-                      <Route path='/manager/public' element={<PublicContributionPM />} />
+                      <Route path='/manager/public/:id' element={<PublicContributionPM />} />
                       <Route path='/manager/public/detail/:id' element={<DetailContributionPM />} />
 
                       {/* Guest */}
-                      <Route path='/guest/public' element={<PublicContributionG />} />
+                      <Route path='/guest/public/' element={<PublicContributionG />} />
                       <Route path='/guest/public/detail/:id' element={<DetailContributionG />} />
 
                       {/* General */}

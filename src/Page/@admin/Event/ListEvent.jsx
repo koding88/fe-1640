@@ -24,15 +24,6 @@ const ListEvent = () => {
         }
     }, [eventData]);
 
-    if (error) {
-        {
-            console.log('Error fetching data: ', error.message)
-        }
-        return (
-            <Loading />
-        )
-    }
-
     if (!events) {
         return (
             <Loading />

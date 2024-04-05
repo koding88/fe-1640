@@ -21,7 +21,7 @@ const UpdateContributionC = () => {
     const [isActive, setIsActive] = useState(false);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
-    const [isDisabled, setIsDisabled] = useState(true);
+    const [isDisabled, setIsDisabled] = useState(false);
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -88,6 +88,7 @@ const UpdateContributionC = () => {
             if (!res.ok) {
                 const data = await res.json();
                 setError(data.message);
+                return
             } else {
                 setComments([...comments, { Content: comment, User: { Name: UserName } }]);
                 setComment('');
@@ -106,12 +107,8 @@ const UpdateContributionC = () => {
     };
 
     const handleBack = () => {
-        navigate(-1) // Go back | Need to fix
+        navigate(`/coordinator/event/contribution/${EventID}/`)
     }
-
-    const token = localStorage.getItem('token');
-    const decodedToken = jwtDecode(token);
-    const UserID = decodedToken.id;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -134,11 +131,12 @@ const UpdateContributionC = () => {
                 },
                 body: formDataToSend
             });
-            console.log(response)
             if (!response.ok) {
-                throw new Error('Failed to grade contribution');
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
-            navigate(`/coordinator/event/contribution/${EventID}`); // Need to fix
+            navigate(`/coordinator/event/contribution/${EventID}`);
         } catch (error) {
             console.error('Error grade contribution:', error);
             setError('Failed to grade contribution. Please try again later.');

@@ -19,16 +19,6 @@ const ListEventM = () => {
         }
     }, [eventData]);
 
-    // Comment no fetch data
-    if (error) {
-        {
-            console.log('Error fetching data: ', error.message)
-        }
-        return (
-            <Loading />
-        )
-    }
-
     if (!events) {
         return (
             <Loading />
@@ -43,14 +33,6 @@ const ListEventM = () => {
     const filteredEvents = events.filter(event =>
         event.FinalDate.includes(searchDate)
     );
-
-    // Combobox date
-    // Day
-    const days = Array.from({ length: 31 }, (_, i) => i + 1);
-    // Month
-    const months = Array.from({ length: 12 }, (_, i) => i + 1);
-    // Year
-    const years = Array.from({ length: 10 }, (_, i) => i + 2021);
 
     // Format Date
     const formatDate = (dateString) => {
@@ -74,18 +56,6 @@ const ListEventM = () => {
                 </div>
 
                 {/* Filter by date */}
-                <div style={
-                    {
-                        marginRight: '100px',
-                    }
-                }>
-                    <input type="text" name="day" list="dayList" value={searchDate} onChange={(e) => setSearchDate(e.target.value)} />
-                    <datalist id='dayList'>
-                        {days.map(day => (
-                            <option key={day} value={day} />
-                        ))}
-                    </datalist>
-                </div>
 
                 <input type="text"
                     className='filter-event'
@@ -98,7 +68,9 @@ const ListEventM = () => {
 
             <div className="row-2 list">
                 <div className="box event-card">
-                    <div className="list-event">
+                    <div className="list-event"
+                    style={{gap: '80px'}}
+                    >
                         {
                             filteredEvents.length > 0 ? (
                                 filteredEvents.map((row, index) => (

@@ -29,18 +29,6 @@ const DetailContributionS = () => {
     const navigate = useNavigate();
     const { id } = useParams();
 
-    const handleBack = () => {
-        navigate(-1); // Go back
-    }
-
-    const handleOpen = () => {
-        setIsActive(true);
-    }
-
-    const handleClose = () => {
-        setIsActive(false);
-    }
-
     // Fetch data
     const { data: contribution } = useFetch(`${ApiResponse}contributions/${id}?depth=1&file=true&comment=true`);
 
@@ -59,6 +47,21 @@ const DetailContributionS = () => {
     ];
 
     const UserName = contribution?.User.Name;
+    const EventID = contribution?.EventID;
+
+
+    // Handle Event
+    const handleBack = () => {
+        navigate(`/student/event/contribution/${EventID}/`); // Go back
+    }
+
+    const handleOpen = () => {
+        setIsActive(true);
+    }
+
+    const handleClose = () => {
+        setIsActive(false);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -81,6 +84,7 @@ const DetailContributionS = () => {
             if (!res.ok) {
                 const data = await res.json();
                 setError(data.message);
+                return
             } else {
                 setComments([...comments, { Content: comment, User: { Name: UserName } }]);
                 setComment('');
@@ -221,11 +225,11 @@ const DetailContributionS = () => {
                                     <label>Comments {`(${comments.length})`}</label>
                                     <div className="list-comment">
                                         {
-                                            comments.map((comment, index) => {
+                                            comments?.map((comment, index) => {
                                                 return (
                                                     <div className="comment-item" key={index}>
-                                                        <div className="user">{comment.User.Name}</div>
-                                                        <div className="description">{comment.Content}</div>
+                                                        <div className="user">{comment.User?.Name}</div>
+                                                        <div className="description">{comment?.Content}</div>
                                                     </div>
                                                 )
 

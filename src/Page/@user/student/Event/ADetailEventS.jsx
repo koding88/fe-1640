@@ -34,7 +34,7 @@ const DetailEventS = () => {
 
     // Handle Event
     const handleBack = () => {
-        navigate(-1)
+        navigate('/student/event')
     }
 
     const handleSubmit = () => {

@@ -97,8 +97,8 @@ const UpdateFaculty = () => {
             }
             navigate('/admin/faculty');
         } catch (error) {
-            console.error('Error creating faculty:', error);
-            setError('Failed to create faculty. Please try again later.');
+            console.error('Error update faculty:', error);
+            setError('Failed to update faculty. Please try again later.');
         } finally {
             setIsLoading(false);
         }

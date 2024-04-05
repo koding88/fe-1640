@@ -39,14 +39,6 @@ const ListFaculty = () => {
         }
     }, [facultyData, eventData]);
 
-    if (error) {
-        {
-            console.log('Error fetching data: ', error.message)
-        }
-        return (
-            <Loading />
-        )
-    }
     if (!facultyData) {
         return (
             <Loading />

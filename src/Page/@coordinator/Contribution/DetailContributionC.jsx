@@ -27,7 +27,7 @@ const UpdateContributionC = () => {
     const {data: status} = useFetch(`${ApiResponse}status`);
     const EventID = contribution?.EventID;
 
-    console.log(contribution)
+
 
     // Set Data
     useEffect(() => {

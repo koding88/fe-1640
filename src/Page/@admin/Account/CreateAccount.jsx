@@ -79,8 +79,6 @@ const CreateAccount = () => {
             RoleID: parseInt(formData.RoleID)
         }
 
-        console.log(newFormData)
-
         try {
             const response = await fetch(`${ApiResponse}users`, {
                 method: 'POST',

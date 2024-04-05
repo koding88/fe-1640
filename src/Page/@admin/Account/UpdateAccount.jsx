@@ -88,11 +88,10 @@ const UpdateAccount = () => {
 
         const newFormData = {
             ...formData,
-            FacultyID: parseInt(formData.FacultyID),
+            FacultyID: formData.FacultyID ? parseInt(formData.FacultyID) : '',
             RoleID: parseInt(formData.RoleID)
         }
 
-        console.log(newFormData)
 
         try {
             const response = await fetch(`${ApiResponse}users/${id}`, {
@@ -108,7 +107,7 @@ const UpdateAccount = () => {
                 setError(data.message);
                 return;
             }
-            navigate(-1);
+            navigate('/admin/account');
         } catch (error) {
             console.error('Error update account:', error);
             setError('Failed to update account. Please try again later.');

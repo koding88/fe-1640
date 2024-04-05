@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 import useFetch from '../../../../CustomHooks/useFetch';
 import TableHead from '../../../../components/TableHead';
 import Search from '../../../../components/Search';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ApiResponse } from '../../../../Api';
+import {Link, useNavigate, useParams} from 'react-router-dom';
+import {ApiResponse} from '../../../../Api';
 import Loading from '../../../../components/Loading';
 
 const headings = ['Name', 'Content', 'Image', 'File', 'Status', 'Action'];
 
 const ListContribution = () => {
     // Fetch data
-    const { id } = useParams();
-    const { data: contributionData, error } = useFetch(`${ApiResponse}events/${id}?depth=1&contribution=true`);
-
+    const {id} = useParams();
+    const {data: contributionData, error} = useFetch(`${ApiResponse}events/${id}?depth=1&contribution=true`);
     // State
     const navigate = useNavigate();
     const [contribution, setContribution] = useState([]);
@@ -27,16 +26,17 @@ const ListContribution = () => {
 
     if (!contribution) {
         return (
-            <Loading />
+            <Loading/>
         )
     }
 
     // Handle Event
     if (!contribution || contribution.length === 0) {
         return (
-            <Loading />
+            <Loading/>
         )
     }
+
 
     const handleDelete = async (id) => {
         try {
@@ -71,16 +71,33 @@ const ListContribution = () => {
         navigate(`/student/event/contribution/${id}/create`);
     }
 
-    // Filter data
-    const filteredContribution = contribution && contribution.Contributions ?
-        contribution.Contributions.filter(item =>
-            item.Name.toLowerCase().includes(searchTerm.toLowerCase())
-        ) : [];
-
     const splitFiles = (str) => {
         const files = str?.split('/');
         return files?.[files?.length - 1]
     }
+
+    var textFileArray = contribution?.TextFiles;
+    var imageFileArray = contribution?.ImageFiles;
+
+    const contributionsWithFiles = contribution.Contributions.map(contribution => {
+        const textFiles = textFileArray.filter(file => file.ContributionID === contribution.ID);
+        const imageFiles = imageFileArray.filter(file => file.ContributionID === contribution.ID);
+
+        return {
+            ...contribution,
+            TextFiles: textFiles,
+            ImageFiles: imageFiles
+        };
+    });
+
+    // Filter data
+    const filteredContribution = contributionsWithFiles ?
+        contributionsWithFiles.filter(item =>
+            item.Name.toLowerCase().includes(searchTerm.toLowerCase())
+        ) : [];
+
+    console.log(contributionsWithFiles);
+
 
     return (
         <div className="box">
@@ -89,7 +106,7 @@ const ListContribution = () => {
                     <div className="title">List Contribution</div>
                 </div>
 
-                <Search placeholder={'Search Contribution'} value={searchTerm} onChange={handleSearchChange} />
+                <Search placeholder={'Search Contribution'} value={searchTerm} onChange={handleSearchChange}/>
 
                 <div className="create">
                     <button className="custom-button" onClick={handleCreate}>Create</button>
@@ -100,56 +117,55 @@ const ListContribution = () => {
                 <div className="box">
                     <table>
                         <thead>
-                            <TableHead headings={headings} />
+                        <TableHead headings={headings}/>
                         </thead>
                         <tbody>
-                            {filteredContribution?.length > 0 ? (
-                                filteredContribution?.map((row, index) => (
-                                    <tr key={index}>
-                                        <td>{row?.Name}</td>
-                                        <td>{row?.Content}</td>
-                                        <td>
-                                            {
-                                                <img
-                                                    width={50 + 'px'}
-                                                    height={50 + 'px'}
-                                                    src={row?.Files[0]?.Url} />
-                                            }
+                        {filteredContribution?.length > 0 ? (
+                            filteredContribution?.map((row, index) => (
+                                <tr key={index}>
+                                    <td>{row?.Name}</td>
+                                    <td>{row?.Content}</td>
+                                    <td>
+                                        <img
+                                            width={50 + 'px'}
+                                            height={50 + 'px'}
+                                            src={row?.Files[0]?.Url}/>
+                                    </td>
 
-                                        </td>
-                                        <td>{(splitFiles(row?.Files[1]?.Url))}</td>
-                                        <td>
-                                            <div className={`status-contribution ${row?.Status.Name}`}>
-                                                {row?.Status.Name}
-                                            </div>
-                                        </td>
 
-                                        <td colSpan="2">
-                                            <ul className="menu-action">
-                                                <li>
-                                                    <Link to={`detail/${row.ID}`}>
-                                                        <i className="fa-solid fa-circle-info"></i>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link to={`update/${row.ID}`}>
-                                                        <i className="fa-solid fa-pen-to-square"></i>
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link onClick={() => handleDelete(row.ID)}>
-                                                        <i className="fa-solid fa-trash"></i>
-                                                    </Link>
-                                                </li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={headings?.length}>Not Found</td>
+                                    <td>{(splitFiles(row?.Files[1]?.Url))}</td>
+                                    <td>
+                                        <div className={`status-contribution ${row?.Status.Name}`}>
+                                            {row?.Status.Name}
+                                        </div>
+                                    </td>
+
+                                    <td colSpan="2">
+                                        <ul className="menu-action">
+                                            <li>
+                                                <Link to={`detail/${row.ID}`}>
+                                                    <i className="fa-solid fa-circle-info"></i>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link to={`update/${row.ID}`}>
+                                                    <i className="fa-solid fa-pen-to-square"></i>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link onClick={() => handleDelete(row.ID)}>
+                                                    <i className="fa-solid fa-trash"></i>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </td>
                                 </tr>
-                            )}
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={headings?.length}>Not Found</td>
+                            </tr>
+                        )}
                         </tbody>
 
                     </table>

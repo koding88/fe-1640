@@ -37,12 +37,31 @@ const CreateContributionS = () => {
     // get userID from token
     const UserID = decodedToken.id;
 
+
+    // Validate form
+    useEffect(() => {
+        setIsFormValid(Object.values(validationErrors).every(error => error === ''));
+    }, [validationErrors, formData]);
+
     // Validate form
     const validateField = (name, value) => {
-        const errorMessage = {
-            Name: value.trim() ? '' : 'Name is required.',
-            Content: value.trim() ? '' : 'Content is required.',
-        }[name];
+        let errorMessage = '';
+        switch (name) {
+            case 'Name':
+                errorMessage = value.trim() ? '' : 'Name is required.';
+                break;
+            case 'Content':
+                errorMessage = value.trim() ? '' : 'Content is required.';
+                break;
+            case 'filesPath':
+                errorMessage = value.trim() ? '' : 'Content is required.';
+                break;
+            case 'file2':
+                errorMessage = value.trim() ? '' : 'Content is required.';
+                break;
+            default:
+                break;
+        }
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     };
 
@@ -66,9 +85,7 @@ const CreateContributionS = () => {
         }
     };
 
-    const handleBack = () => {
-        navigate(-1);
-    }
+    const handleBack = () => {navigate(`/student/event/contribution/${id}`)}
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -107,7 +124,7 @@ const CreateContributionS = () => {
                 return;
             }
 
-            navigate(-1);
+            navigate(`/student/event/contribution/${id}`);
         } catch (error) {
             console.error('Error creating contribution:', error);
             setError('Failed to create contribution. Please try again later.');
@@ -226,7 +243,6 @@ const CreateContributionS = () => {
                                 </div>
                             </div>
 
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

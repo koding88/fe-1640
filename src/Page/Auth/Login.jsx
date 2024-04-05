@@ -3,9 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import Logo1 from '../../../public/logo1.png';
 import useFetch from '../../CustomHooks/useFetch';
 import { ApiResponse } from '../../Api';
-import roles from '../../../roles';
 
-const Data = { email: '', password: ''};
+const Data = { email: '', password: '', FacultyID: ''};
 
 const LoginSCG = () => {
     // State
@@ -24,7 +23,7 @@ const LoginSCG = () => {
     const validateField = (name, value) => {
         const errorMessage = {
             email: /\S+@\S+\.\S+/.test(value) ? '' : 'Email requires @ and no other special characters.',
-            password: /(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}/.test(value) ? '' : 'Password must be at least 8 characters with letters and numbers.'
+            // password: /(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}/.test(value) ? '' : 'Password must be at least 8 characters with letters and numbers.'
         }[name];
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     }
@@ -44,6 +43,8 @@ const LoginSCG = () => {
         e.preventDefault();
         if (!isFormValid) return setError("Please fill in all fields correctly.");
         const newFormData = { ...formData, FacultyID: parseInt(formData.FacultyID) };
+
+        console.log(newFormData)
         try {
             const response = await fetch(`${ApiResponse}auth/login`, {
                 method: 'POST',
@@ -55,9 +56,8 @@ const LoginSCG = () => {
                 localStorage.setItem('token', data.token);
                 const roleID = data.user.RoleID;
                 const rolePaths = {
-                    1: '/admin/account',
-                    2: '/manager/dashboard',
-                    3: '/coordinator/dashboard',
+                    // 3: '/coordinator/dashboard',
+                    3: '/coordinator/event',
                     4: '/student/event'
                 };
                 const rolePath = rolePaths[roleID];
@@ -114,8 +114,10 @@ const LoginSCG = () => {
                             <button type="button" className="btn-guest">Guest</button>
                             <button type="submit" className="btn-login">Login</button>
                         </div>
+                        {error && <div className="error">{error}</div>}
                     </form>
                 </div>
+
                 <button className="btn-staff" type="button" onClick={handleStaffLogin}>Login for staff</button>
             </div>
         </div>

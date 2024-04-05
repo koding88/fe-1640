@@ -107,7 +107,7 @@ const CreateRole = () => {
 
                             <div className="form-action">
                                 <button type="submit" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" disabled={!isFormValid || isLoading} className="btn">Create</button>
+                                <button type="submit" disabled={!isFormValid} className="btn">Create</button>
                             </div>
                             {error && <div className="error">{error}</div>}
                         </form>

@@ -18,6 +18,8 @@ const ListContributionS = () => {
     const [contribution, setContribution] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
+    const EventID = contributionData?.ID;
+
     // Set Data
     useEffect(() => {
         if (contributionData) {
@@ -35,9 +37,8 @@ const ListContributionS = () => {
         setSearchTerm(contribution.target.value);
     };
 
-    // Fix path public
     const handlePublic = () => {
-        navigate(`/coordinator/public`);
+        navigate(`/coordinator/public/${EventID}`);
     }
 
     // Filter data

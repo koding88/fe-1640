@@ -25,14 +25,6 @@ const ListEventS = () => {
         }
     }, [eventData]);
 
-    if (error) {
-        {
-            console.log('Error fetching data: ', error.message)
-        }
-        return (
-            <Loading />
-        )
-    }
 
     if (!events) {
         return (
@@ -40,6 +32,7 @@ const ListEventS = () => {
         )
     }
 
+    // Handle Event
     const handleDateChange = (event) => {
         setSearchDate(event.target.value);
     };

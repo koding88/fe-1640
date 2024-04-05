@@ -69,7 +69,7 @@ const UpdateContributionS = () => {
     };
 
     const handleBack = () => {
-        navigate(-1);
+        navigate(`/student/event/contribution/${EventID}/`);
     }
 
     const handleSubmit = async (e) => {
