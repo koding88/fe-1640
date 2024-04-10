@@ -4,7 +4,7 @@ import Logo1 from '../../../public/logo1.png';
 import useFetch from '../../CustomHooks/useFetch';
 import { ApiResponse } from '../../Api';
 
-const Data = { email: '', password: '', FacultyID: ''};
+const Data = { email: '', password: '', FacultyID: '' };
 
 const LoginSCG = () => {
     // State
@@ -23,7 +23,7 @@ const LoginSCG = () => {
     const validateField = (name, value) => {
         const errorMessage = {
             email: /\S+@\S+\.\S+/.test(value) ? '' : 'Email requires @ and no other special characters.',
-            // password: /(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}/.test(value) ? '' : 'Password must be at least 8 characters with letters and numbers.'
+            password: /(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}/.test(value) ? '' : 'Password must be at least 8 characters with letters and numbers.'
         }[name];
         setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
     }
@@ -44,7 +44,6 @@ const LoginSCG = () => {
         if (!isFormValid) return setError("Please fill in all fields correctly.");
         const newFormData = { ...formData, FacultyID: parseInt(formData.FacultyID) };
 
-        console.log(newFormData)
         try {
             const response = await fetch(`${ApiResponse}auth/login`, {
                 method: 'POST',
@@ -54,10 +53,10 @@ const LoginSCG = () => {
             const data = await response.json();
             if (response.ok) {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
                 const roleID = data.user.RoleID;
                 const rolePaths = {
-                    // 3: '/coordinator/dashboard',
-                    3: '/coordinator/event',
+                    3: '/coordinator/dashboard',
                     4: '/student/event'
                 };
                 const rolePath = rolePaths[roleID];
@@ -79,6 +78,27 @@ const LoginSCG = () => {
 
     const handleStaffLogin = () => navigate('/login/admin');
 
+    const handleGuestLogin = async (e) => {
+        e.preventDefault();
+
+        if (!formData.FacultyID) {
+            setError("Please select a Faculty.");
+            return;
+        }
+
+        const guestFormData = {
+            role: 5, // Guest
+            FacultyID: parseInt(formData.FacultyID)
+        };
+
+        const guest = JSON.stringify(guestFormData);
+        localStorage.setItem('guest', guest);
+        navigate('/guest/public/', { state: guest });
+        window.location.reload()
+    };
+
+
+
     return (
         <div className="login-1">
             <div className="logo">
@@ -90,12 +110,14 @@ const LoginSCG = () => {
                     <form onSubmit={handleSubmit} className="form-login">
                         <div className="input-box">
                             <label>Email</label>
-                            <input type="email" required name="email" value={formData.email} onChange={handleChange} autoComplete='one' placeholder="Enter your email" />
+                            <input type="email" required name="email" value={formData.email} onChange={handleChange}
+                                autoComplete='one' placeholder="Enter your email" />
                         </div>
                         {validationErrors.email && <div className="error">{validationErrors.email}</div>}
                         <div className="input-box">
                             <label>Password</label>
-                            <input type="password" required name="password" value={formData.password} onChange={handleChange} autoComplete='one' placeholder="Enter your password" />
+                            <input type="password" required name="password" value={formData.password}
+                                onChange={handleChange} autoComplete='one' placeholder="Enter your password" />
                         </div>
                         {validationErrors.password && <div className="error">{validationErrors.password}</div>}
                         <div className="forgot-pass">
@@ -109,9 +131,8 @@ const LoginSCG = () => {
                                 ))}
                             </select>
                         </div>
-                        {validationErrors.FacultyID && <div className="error">{validationErrors.FacultyID}</div>}
                         <div className="form-submit">
-                            <button type="button" className="btn-guest">Guest</button>
+                            <button type="button" onClick={handleGuestLogin} className="btn-guest">Guest</button>
                             <button type="submit" className="btn-login">Login</button>
                         </div>
                         {error && <div className="error">{error}</div>}

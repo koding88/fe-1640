@@ -1,17 +1,20 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 import useFetch from '../../../CustomHooks/useFetch';
 import TableHead from '../../../components/TableHead';
 import Search from '../../../components/Search';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ApiResponse } from '../../../Api';
+import {Link, useNavigate, useParams} from 'react-router-dom';
+import {ApiResponse} from '../../../Api';
 import Loading from '../../../components/Loading';
 
 const headings = ['Name', 'Content', 'Image', 'File', 'Action'];
 
 const ListContributionPM = () => {
     // Fetch data
-    const { id } = useParams();
-    const { data: contributionData, error } = useFetch(`${ApiResponse}eventss/${id}?depth=1&contribution=true`);
+    const {id} = useParams();
+    const {
+        data: contributionData,
+        error
+    } = useFetch(`${ApiResponse}events/${id}?depth=1&contribution=true&isPublic=true`);
 
     // State
     const navigate = useNavigate();
@@ -27,25 +30,44 @@ const ListContributionPM = () => {
 
     if (!contribution) {
         return (
-            <Loading />
+            <Loading/>
         )
     }
 
     // Handle Event
-    const handleDelete = async (id) => {
+    const handleDownload = async (e) => {
+        e.stopPropagation();
+        const fileID = e.target.getAttribute('data-id');
         try {
-            const response = await fetch(`${ApiResponse}contribution/${id}`, {
-                method: 'DELETE'
+            const response = await fetch(`${ApiResponse}contributions/${fileID}/download`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete contribution');
+                throw new Error('Failed to download contribution');
             }
-            setContribution(prevContribution => prevContribution.filter(contribution => contribution.ID !== id));
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'file.zip');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
         } catch (error) {
-            console.error('Error deleting contribution:', error);
+            console.error(error);
         }
     };
+
+    const handleDetailClick = (ID) => {
+        return () => {
+            navigate(`/manager/public/${id}/detail/${ID}`);
+        };
+    };
+
 
     const handleSearchChange = (contribution) => {
         setSearchTerm(contribution.target.value);
@@ -56,8 +78,6 @@ const ListContributionPM = () => {
         contribution.Contributions.filter(item =>
             item.Name.toLowerCase().includes(searchTerm.toLowerCase())
         ) : [];
-
-    console.log(contribution.Contributions)
 
     const splitFiles = (str) => {
         const files = str?.split('/');
@@ -72,32 +92,35 @@ const ListContributionPM = () => {
                     <div className="title">List Public Contribution</div>
                 </div>
 
-                <Search placeholder={'Search Contribution'} value={searchTerm} onChange={handleSearchChange} />
+                <Search placeholder={'Search Contribution'} value={searchTerm} onChange={handleSearchChange}/>
             </div>
 
             <div className="row-2 list">
                 <div className="box">
                     <table>
                         <thead>
-                        <TableHead headings={headings} />
+                        <TableHead headings={headings}/>
                         </thead>
                         <tbody>
                         {filteredContribution?.length > 0 ? (
                             filteredContribution?.map((row, index) => (
-                                <tr key={index}>
+                                <tr onClick={handleDetailClick(row?.ID)} key={index}>
                                     <td>{row?.Name}</td>
                                     <td>{row?.Content}</td>
                                     <td>
                                         <img
                                             width={50 + 'px'}
                                             height={50 + 'px'}
-                                            src={row?.Files[0]?.Url}/>
+                                            src={row?.ImageFiles[0]?.Url ?? null}/>
                                     </td>
 
-                                    <td>{(splitFiles(row?.Files[1]?.Url))}</td>
+                                    <td>{(splitFiles(row?.TextFiles[0]?.Url ?? null))}</td>
 
                                     <td colSpan="2">
-                                        <span>Download</span>
+                                        <span className='download-file'
+                                              data-id={row?.ID}
+                                              onClick={handleDownload}
+                                        >Download</span>
                                     </td>
                                 </tr>
                             ))

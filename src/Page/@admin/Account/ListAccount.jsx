@@ -10,7 +10,8 @@ const headings = ['Full Name', 'Email', 'Faculty', 'Role', 'Action'];
 
 const ListAccount = () => {
     const navigate = useNavigate();
-    const { data: accountData, error } = useFetch(`${ApiResponse}users/?depth=1`);
+    const { data: accountData } = useFetch(`${ApiResponse}users/?depth=1`);
+    const [error, setError] = useState(null);
     const [accounts, setAccounts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -30,8 +31,9 @@ const ListAccount = () => {
                 },
             });
             if (!response.ok) {
-                const data = response.json();
-                throw new Error(data.then(data => (data.message)));
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
             setAccounts(prevAccounts => prevAccounts.filter(account => account.ID !== id));
         } catch (error) {
@@ -91,6 +93,8 @@ const ListAccount = () => {
                             )}
                         </tbody>
                     </table>
+                    {error && <div className="error">{error}</div>}
+                    {!accountData && <Loading />}
                 </div>
             </div>
         </div>

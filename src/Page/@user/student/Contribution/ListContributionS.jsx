@@ -76,28 +76,14 @@ const ListContribution = () => {
         return files?.[files?.length - 1]
     }
 
-    var textFileArray = contribution?.TextFiles;
-    var imageFileArray = contribution?.ImageFiles;
-
-    const contributionsWithFiles = contribution.Contributions.map(contribution => {
-        const textFiles = textFileArray.filter(file => file.ContributionID === contribution.ID);
-        const imageFiles = imageFileArray.filter(file => file.ContributionID === contribution.ID);
-
-        return {
-            ...contribution,
-            TextFiles: textFiles,
-            ImageFiles: imageFiles
-        };
-    });
 
     // Filter data
-    const filteredContribution = contributionsWithFiles ?
-        contributionsWithFiles.filter(item =>
+    const filteredContribution = contribution.Contributions ?
+        contribution.Contributions.filter(item =>
             item.Name.toLowerCase().includes(searchTerm.toLowerCase())
         ) : [];
 
-    console.log(contributionsWithFiles);
-
+    // console.log(filteredContribution)
 
     return (
         <div className="box">
@@ -129,14 +115,14 @@ const ListContribution = () => {
                                         <img
                                             width={50 + 'px'}
                                             height={50 + 'px'}
-                                            src={row?.Files[0]?.Url}/>
+                                            src={row?.ImageFiles[0]?.Url}/>
                                     </td>
 
 
-                                    <td>{(splitFiles(row?.Files[1]?.Url))}</td>
+                                    <td>{(splitFiles(row?.TextFiles[0]?.Url))}</td>
                                     <td>
-                                        <div className={`status-contribution ${row?.Status.Name}`}>
-                                            {row?.Status.Name}
+                                        <div className={`status-contribution ${row?.Status?.Name}`}>
+                                            {row?.Status?.Name}
                                         </div>
                                     </td>
 

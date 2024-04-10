@@ -65,7 +65,9 @@ const UpdateContributionC = () => {
         setIsActive(true);
     }
 
-    const UserName = contribution?.User.Name;
+    const currentUser = localStorage.getItem('currentUser')
+    const User = JSON.parse(currentUser)
+
 
     const handleSubmitComments = async (e) => {
         e.preventDefault();
@@ -90,7 +92,7 @@ const UpdateContributionC = () => {
                 setError(data.message);
                 return
             } else {
-                setComments([...comments, { Content: comment, User: { Name: UserName } }]);
+                setComments([...comments, { Content: comment, User: { Name: User.Name } }]);
                 setComment('');
                 setIsDisabled(true);
             }

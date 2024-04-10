@@ -53,12 +53,11 @@ const LoginAM = () => {
             const data = await response.json();
             if (response.ok) {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
                 const roleID = data.user.RoleID;
                 const rolePaths = {
-                    1: '/admin/account',
-                    // 2: '/manager/dashboard',
-                    2: '/manager/event',
-
+                    1: '/admin/dashboard',
+                    2: '/manager/dashboard',
                 };
 
                 const rolePath = rolePaths[roleID];

@@ -10,6 +10,7 @@ const ResetPassword = () => {
     // State
     const [formData, setFormData] = useState(Data);
     const [validationErrors, setValidationErrors] = useState(Data);
+    const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
@@ -40,19 +41,19 @@ const ResetPassword = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValid) return setError("Please fill in all fields correctly.");
-        console.log('click')
-
-        // console.log(`${ApiResponse}/auth/resetPassword/?token=${token}`)
 
         try {
-            const response = await fetch(`${ApiResponse}auth/resetPassword/?token=${token}`, {
+            const response = await fetch(`${ApiResponse}auth/password/reset?token=${token}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
             const data = await response.json();
             if (response.ok) {
-                window.location.href = '/login' 
+                setTimeout(()=>{
+                    setMessage('Password reset successfully. Please login to continue.');
+                })
+                window.location.href = '/login'
             } else {
                 setError(data.message.message);
             }
@@ -76,6 +77,8 @@ const ResetPassword = () => {
                         </div>
                         {validationErrors.email && <div className="error">{validationErrors.email}</div>}
                         <div className="form-submit">
+                            {error && <div className="error">{error}</div>}
+                            {message && <div className="error">{message}</div>}
                             <button type="submit" className="btn-login">SEND</button>
                         </div>
                     </form>

@@ -537,7 +537,24 @@ select {
 
 
 .contribution.detail .form-group {
-  min-width: 650px;
+  min-width: calc(100% + 300px);
+}
+
+.download-file{
+  padding: 8px;
+  border: 1px solid rgba(113, 113, 122, 1);
+  border-radius: 8px;
+  cursor: pointer;
+  color: #ccc;
+  color: rgba(113, 113, 122, 1);
+}
+
+.download-file:active{
+    opacity: 0.5;
+}
+
+.download-file:hover{
+    background: #f1f1f1;
 }
 
 .image-preview {
@@ -1375,4 +1392,41 @@ input[type="file"]::content {
   padding: 8px 36px;
   margin-top: 10px;
   margin-right: 20px;
+}
+
+/* Dashboard */
+/* Admin */
+.dashboard{
+  height: 1000px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 2vw;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  border-radius: 16px;
+  background: #F9F9F9;
+}
+
+.dataCard {
+  background-color: #efefef;
+  border-radius: 0.5em;
+  padding: 1em;
+}
+
+.revenueCard {
+  margin-top: 36px;
+  width: 92%;
+  height: 40rem;
+  text-align: -webkit-center;
+}
+
+.customerCard {
+  width: 50%;
+  height: 40rem;
+}
+
+.categoryCard {
+  width: 40%;
+  height: 40rem;
 }

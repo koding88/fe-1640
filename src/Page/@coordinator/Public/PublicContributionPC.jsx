@@ -11,9 +11,7 @@ const headings = ['Name', 'Content', 'Image', 'File', 'Action'];
 const ListContributionPC = () => {
     // Fetch data
     const { id } = useParams();
-    const { data: contributionData, error } = useFetch(`${ApiResponse}events/${id}?depth=1&contribution=true&isPublic=truee`);
-
-    console.log(contributionData)
+    const { data: contributionData, error } = useFetch(`${ApiResponse}events/${id}?depth=1&contribution=true&isPublic=true`);
 
     // State
     const navigate = useNavigate();
@@ -48,7 +46,6 @@ const ListContributionPC = () => {
         return files?.[files?.length - 1]
     }
 
-    // console.log(filteredContribution)
 
 
     return (
@@ -77,10 +74,10 @@ const ListContributionPC = () => {
                                             <img
                                                 width={50 + 'px'}
                                                 height={50 + 'px'}
-                                                src={row?.Files[0]?.Url}/>
+                                                src={row?.ImageFiles[0]?.Url}/>
                                         </td>
 
-                                        <td>{(splitFiles(row?.Files[1]?.Url))}</td>
+                                        <td>{(splitFiles(row?.TextFiles[0]?.Url))}</td>
 
                                         <td colSpan="2">
                                             <ul className="menu-action"

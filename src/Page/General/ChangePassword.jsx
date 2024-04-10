@@ -1,62 +1,58 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Loading from '../../components/Loading';
 import FormGroup from '../../components/FormGroup';
-import useFetch from '../../CustomHooks/useFetch';
 
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
+const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/';
 
 const Data = {
-    CurrentPassword: '',
-    NewPassword: '',
+    oldPassword: '',
+    newPassword: '',
     ConfirmPassword: '',
-}
+};
 
 const ChangePassword = () => {
     const navigate = useNavigate();
+    const [isFormValid, setIsFormValid] = useState(false);
+    const [validationErrors, setValidationErrors] = useState(Data);
+    const [confirmPassword, setConfirmPassword] = useState('');
 
     // State
     const [formData, setFormData] = useState(Data);
-    const [isFormValid, setIsFormValid] = useState(false);
-    const [validationErrors, setValidationErrors] = useState(Data);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     // Validate form
-    // useEffect(() => {
-    //     setIsFormValid(Object.values(validationErrors).every(error => error === '') && Object.values(formData).every(value => value !==''));
-    // }, [validationErrors, formData]);
+    useEffect(() => {
+        setIsFormValid(Object.values(validationErrors).every(error => error === '') && formData.newPassword === confirmPassword);
+    }, [validationErrors, formData, confirmPassword]);
 
-    // const validateField = (name, value) => {
-    //     let errorMessage = '';
-    //     switch (name) {
-    //         case 'Name':
-    //             errorMessage = /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'User name is invalid, cannot contain numbers or special characters, and must have a maximum of 15 characters.';
-    //             break;
-    //         case 'Email':
-    //             errorMessage = /\S+@\S+\.\S+/.test(value) ? '' : 'Email must contain `@` and cannot contain other special characters..';
-    //             break;
-    //         case 'Phone':
-    //             errorMessage = /^\+?[0-9]\d{1,20}$/.test(value) ? '' : 'Phone number must be 10 digits.';
-    //             break;
-    //         case 'Address':
-    //             errorMessage = /^[A-Za-z0-9\s]{1,300}$/.test(value) ? '' : 'Address is invalid, cannot contain special characters, and must have a maximum of 50 characters.';
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    //     setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
-    // };
+    const validateField = (name, value) => {
+        let errorMessage = '';
+        switch (name) {
+            case 'oldPassword':
+                errorMessage = value.trim() && /(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}/.test(value) ? '' : 'Password must be at least 8 characters with letters and numbers.';
+                break;
+            case 'newPassword':
+                errorMessage = value.trim() && /(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}/.test(value) ? '' : 'Password must be at least 8 characters with letters and numbers.';
+                break;
+            case 'ConfirmPassword':
+                errorMessage = value === formData.newPassword ? '' : 'Passwords do not match.';
+                break;
+            default:
+                break;
+        }
+        setValidationErrors(prevState => ({ ...prevState, [name]: errorMessage }));
+    };
 
     // Handle Event
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({ ...prevState, [name]: value }));
-        // validateField(name, value);
+        validateField(name, value);
     };
 
     const handleBack = () => {
-        navigate('/home/');
+        navigate(-1);
     }
 
     const handleSubmit = async (e) => {
@@ -70,24 +66,29 @@ const ChangePassword = () => {
         setIsLoading(true);
         setError(null);
 
+        const newFormData = {
+            oldPassword: formData.oldPassword,
+            newPassword: formData.newPassword
+        };
+
         try {
-            const response = await fetch(`${ApiResponse}users`, {
+            const response = await fetch(`${ApiResponse}auth/password/change`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 },
-
-                body: JSON.stringify(formData)
+                body: JSON.stringify(newFormData)
             });
             if (!response.ok) {
-                const data = response.json();
-                data.then(data => setError(data.message))
+                const data = await response.json();
+                setError(data.message);
+                return;
             }
-            navigate('/home');
+            // navigate(-1);
         } catch (error) {
             console.error('Error change password:', error);
-            setError('Failed to change passwword. Please try again later.');
+            setError('Failed to change password. Please try again later.');
         } finally {
             setIsLoading(false);
         }
@@ -102,41 +103,42 @@ const ChangePassword = () => {
             </div>
 
             <div className="row-2">
-                <div className="box">
+                <div className="box"
+                     style={{ minHeight: '620px' }}
+                >
                     <div className="box-content">
                         <form onSubmit={handleSubmit}>
                             <FormGroup
                                 label={'Current Password'}
                                 inputType={'password'}
-                                inputName={'CurrentPassword'}
-                                value={formData.CurrentPassword}
+                                inputName={'oldPassword'}
+                                value={formData.oldPassword}
                                 onChange={handleChange}
                             />
-                            {validationErrors.CurrentPassword && <div className="error">{validationErrors.CurrentPassword}</div>}
+                            {validationErrors.oldPassword && <div className="error">{validationErrors.oldPassword}</div>}
 
                             <FormGroup
                                 label={'New Password'}
                                 inputType={'password'}
-                                inputName={'NewPassword'}
-                                value={formData.NewPassword}
+                                inputName={'newPassword'}
+                                value={formData.newPassword}
                                 onChange={handleChange}
                             />
-                            {validationErrors.NewPassword && <div className="error">{validationErrors.NewPassword}</div>}
+                            {validationErrors.newPassword && <div className="error">{validationErrors.newPassword}</div>}
 
                             <FormGroup
                                 label={'Confirm Password'}
                                 inputType={'password'}
                                 inputName={'ConfirmPassword'}
-                                value={formData.ConfirmPassword}
-                                onChange={handleChange}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
                             />
                             {validationErrors.ConfirmPassword && <div className="error">{validationErrors.ConfirmPassword}</div>}
 
                             <div className="form-action">
                                 <button type="button" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit" className="btn">Update</button>
+                                <button type="submit"  className="btn">Update</button>
                             </div>
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

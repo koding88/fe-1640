@@ -83,11 +83,12 @@ const ListContributionS = () => {
                                             <img
                                                 width={50 + 'px'}
                                                 height={50 + 'px'}
-                                                src={row?.Files[0]?.Url}/>
+                                                src={row?.ImageFiles[0]?.Url?? null}
+                                                />
                                         }
 
                                     </td>
-                                    <td>{(splitFiles(row?.Files[1]?.Url))}</td>
+                                    <td>{(splitFiles(row?.TextFiles[0]?.Url ?? null))}</td>
                                     <td>
                                         <div className={`status-contribution ${row?.Status.Name}`}>
                                             {row?.Status.Name}

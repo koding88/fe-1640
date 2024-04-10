@@ -9,6 +9,7 @@ const ForgotPassword = () => {
     // State
     const [formData, setFormData] = useState(Data);
     const [validationErrors, setValidationErrors] = useState(Data);
+    const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
@@ -37,25 +38,22 @@ const ForgotPassword = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValid) return setError("Please fill in all fields correctly.");
-        // const origin = window.location.origin;
-        // console.log('Origin:', origin);
-        console.log(`${ApiResponse}auth/forgotPassword?email=${formData.email}`)
 
         try {
-            const response = await fetch(`${ApiResponse}auth/forgotPassword?email=${formData.email}`, {
+            const response = await fetch(`${ApiResponse}auth/password/forgot?email=${formData.email}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
             });
-            const data = await response.json();
-            if (response.ok) {
-                // localStorage.setItem('token', data.token);
-                console.log(data)
-                navigate('/resetpassword')
-                // window.location.href = '/resetpassword'
-                // window.location.reload();
-            } else {
-                // setError(data.message.message);
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.e.message);
+                return;
             }
+            setMessage('Please Check your email to reset your password.');
+            setTimeout(() => {
+                navigate('/login');
+            }, 3000);
+
         } catch (error) {
             console.error('Error forgot password in: ', error);
             setError('An error occurred while forgot password in. Please try again later.');
@@ -77,6 +75,8 @@ const ForgotPassword = () => {
                         </div>
                         {validationErrors.email && <div className="error">{validationErrors.email}</div>}
                         <div className="form-submit">
+                            {error && <div className="error">{error}</div>}
+                            {message && <div className="error">{message}</div>}
                             <button type="submit" className="btn-login">SEND</button>
                         </div>
                     </form>

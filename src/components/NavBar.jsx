@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import Logo from '/logo.webp'
 import { useState } from 'react';
+import {jwtDecode} from 'jwt-decode';
 import {
     NovuProvider,
     PopoverNotificationCenter,
@@ -14,7 +15,9 @@ const NavBar = () => {
         setIsActive(!isActive);
     };
 
-    const userID = localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')).ID : 0;
+    const token = localStorage.getItem('token')
+    const decodedToken = token ? jwtDecode(token) : null;
+    const userID = decodedToken?.id;
 
     const handleLogout = () => {
         localStorage.clear();
@@ -23,7 +26,6 @@ const NavBar = () => {
 
     return (
         <nav className="NavBar">
-
             <div className="logo-2">
                 <div className="logo-img">
                     <img src={Logo} width='40px' height='40px' alt="Logo" />
@@ -49,7 +51,7 @@ const NavBar = () => {
                         <i className="fa-regular fa-user"></i>
                     </Link>
                     <div className={`menu ${isActive ? 'active' : ''}`}>
-                        <a href="#">Profile</a>
+                        <Link to='/profile'>Profile</Link>
                         <Link href="#" onClick={handleLogout}>Logout</Link>
                     </div>
                 </div>

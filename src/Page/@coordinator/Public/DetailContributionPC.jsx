@@ -1,26 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import FormGroup from '../../../components/FormGroup';
-import Loading from '../../../components/Loading';
+import useFetch from "../../../CustomHooks/useFetch.jsx";
 import DocViewer, { DocViewerRenderers } from "@cyntler/react-doc-viewer";
 
 const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
 
 const DetailContributionPC = () => {
     // State
-    const [isLoading, setIsLoading] = useState(false);
     const [isActive, setIsActive] = useState(false);
     const navigate = useNavigate();
     const { id } = useParams();
 
     // Fetch data
+    const {data: contribution} = useFetch(`${ApiResponse}contributions/${id}?depth=1&file=true`);
 
+    var textFile = contribution?.TextFiles[0]?.Url
+    var imageFile = contribution?.ImageFiles[0]?.Url
 
     const docs = [
-        { uri: `${''}` },
+        { uri: `${textFile}` },
     ];
 
-
+    const splitFiles = (str) => {
+        const files = str?.split('/');
+        return files?.[files?.length - 1]
+    }
 
     // Handle event
     const handleClose = () => {
@@ -57,12 +61,12 @@ const DetailContributionPC = () => {
                         >
                             <div className="form-group">
                                 <label>Name</label>
-                                <input type="text" name="name" readOnly={true} className="form-control"/>
+                                <input type="text" name="name" value={contribution?.Name} readOnly={true} className="form-control"/>
                             </div>
 
                             <div className="form-group">
                                 <label>Description</label>
-                                <textarea name="" readOnly={true} id="" cols="30" rows="10"></textarea>
+                                <textarea name="" value={contribution?.Content} readOnly={true} id="" cols="30" rows="10"></textarea>
                             </div>
 
                             <div className="form-group mb-input">
@@ -70,7 +74,8 @@ const DetailContributionPC = () => {
                                 <div
                                     style={{display: 'flex'}}
                                 >
-                                    <input type="text" style={{width: '85%'}} name="name" id="name"
+                                    <input type="text" style={{width: '85%'}} name="name" id="name" readOnly={true}
+                                           value={splitFiles(textFile) ?? null}
                                            className="form-control"/>
                                     <div className="download"
                                          style={{
@@ -105,8 +110,13 @@ const DetailContributionPC = () => {
                         </form>
                         <div className="form-group update">
                             <label>Image</label>
-                            <div className="image-preview">
-                                Preview image
+                            <div className="image-preview"
+                            style={{
+                                    backgroundImage: `url(${imageFile})`,
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundSize: 'cover',
+                            }}
+                            >
                             </div>
                         </div>
                     </div>

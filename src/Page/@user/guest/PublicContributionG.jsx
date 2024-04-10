@@ -10,8 +10,12 @@ const headings = ['Name', 'Content', 'Image', 'File'];
 
 const ListContributionG = () => {
     // Fetch data
-    const { id } = useParams();
-    const { data: contributionData, error } = useFetch(`${ApiResponse}eventss/${id}?depth=1&contribution=true`);
+    const token = localStorage.getItem('guest');
+    const guest = JSON.parse(token);
+    const faculityID = guest?.FacultyID;
+
+
+    const { data: contributionData, error } = useFetch(`${ApiResponse}faculties/public/${faculityID}`);
 
     // State
     const navigate = useNavigate();
@@ -25,16 +29,6 @@ const ListContributionG = () => {
         }
     }, [contributionData]);
 
-    // Comment no fetch data
-    // if (error) {
-    //     {
-    //         console.log('Error fetching data: ', error.message)
-    //     }
-    //     return (
-    //         <Loading />
-    //     )
-    // }
-
     if (!contribution) {
         return (
             <Loading />
@@ -42,76 +36,70 @@ const ListContributionG = () => {
     }
 
     // Handle Event
-    const handleDelete = async (id) => {
-        try {
-            const response = await fetch(`${ApiResponse}contribution/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete contribution');
-            }
-            setContribution(prevContribution => prevContribution.filter(contribution => contribution.ID !== id));
-        } catch (error) {
-            console.error('Error deleting contribution:', error);
-        }
-    };
-
     const handleSearchChange = (contribution) => {
         setSearchTerm(contribution.target.value);
     };
 
-    const handleCreate = () => {
-        navigate(`/student/event/contribution/${id}/create`);
-    }
+
+
+    const handleDetailClick = (ID) => {
+        return () => {
+            navigate(`/guest/public/detail/${ID}`, {state: contribution});
+        };
+    };
 
     // Filter data
-    const filteredContribution = contribution.Contributions ?
-        contribution.Contributions.filter(item =>
+    const filteredContribution = contribution ?
+        contribution.filter(item =>
             item.Name.toLowerCase().includes(searchTerm.toLowerCase())
         ) : [];
 
-    console.log(contribution.Contributions)
+    // Split files
+    const splitFiles = (str) => {
+        const files = str?.split('/');
+        return files?.[files?.length - 1]
+    }
+
 
 
     return (
         <div className="box">
             <div className="row-1">
                 <div className="header">
-                    <div className="title">List Contribution</div>
+                    <div className="title">List Contribution Public</div>
                 </div>
 
                 <Search placeholder={'Search Contribution'} value={searchTerm} onChange={handleSearchChange} />
 
-                <div className="create">
-                    <button className="custom-button" onClick={handleCreate}>Create</button>
-                </div>
             </div>
 
             <div className="row-2 list">
                 <div className="box">
                     <table>
                         <thead>
-                            <TableHead headings={headings} />
+                        <TableHead headings={headings} />
                         </thead>
                         <tbody>
-                            {filteredContribution?.length > 0 ? (
-                                filteredContribution?.map((row, index) => (
-                                    <tr key={index}>
-                                        <td>{row?.Name}</td>
-                                        <td>{row?.Content}</td>
-                                        <td>image</td>
-                                        <td>{row?.Url}</td>
-                                        <td>{row?.Status.Name}</td>
+                        {filteredContribution?.length > 0 ? (
+                            filteredContribution?.map((row, index) => (
+                                <tr onClick={handleDetailClick(row?.ID)} key={index}>
+                                    <td>{row?.Name}</td>
+                                    <td>{row?.Content}</td>
+                                    <td>
+                                        <img
+                                            width={50 + 'px'}
+                                            height={50 + 'px'}
+                                            src={row?.Files[1]?.Url}/>
+                                    </td>
+                                    <td>{(splitFiles(row?.Files[0]?.Url))}</td>
 
-
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={headings?.length}>Not Found</td>
                                 </tr>
-                            )}
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={headings?.length}>Not Found</td>
+                            </tr>
+                        )}
                         </tbody>
 
                     </table>
