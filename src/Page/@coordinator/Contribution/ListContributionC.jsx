@@ -1,17 +1,17 @@
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import useFetch from '../../../CustomHooks/useFetch';
 import TableHead from '../../../components/TableHead';
 import Search from '../../../components/Search';
-import {Link, useNavigate, useParams} from 'react-router-dom';
-import {ApiResponse} from '../../../Api';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ApiResponse } from '../../../Api';
 import Loading from '../../../components/Loading';
 
 const headings = ['Name', 'Content', 'Image', 'File', 'Status', 'Action'];
 
 const ListContributionS = () => {
     // Fetch data
-    const {id} = useParams();
-    const {data: contributionData, error} = useFetch(`${ApiResponse}events/${id}?depth=1&contribution=true`);
+    const { id } = useParams();
+    const { data: contributionData, error } = useFetch(`${ApiResponse}events/${id}?depth=1&contribution=true`);
 
     // State
     const navigate = useNavigate();
@@ -29,7 +29,7 @@ const ListContributionS = () => {
 
     if (!contribution) {
         return (
-            <Loading/>
+            <Loading />
         )
     }
 
@@ -52,6 +52,15 @@ const ListContributionS = () => {
         return files?.[files?.length - 1]
     }
 
+    // Turn off Grade if the final date is expired after 7days
+    const finalDate = new Date(contribution.FinalDate);
+    finalDate.setDate(finalDate.getDate() + 7);
+    const currentDate = new Date();
+    const expired = currentDate.getTime() <= finalDate.getTime();
+    console.log("Expired:", expired);
+
+
+
     return (
         <div className="box">
             <div className="row-1">
@@ -59,7 +68,7 @@ const ListContributionS = () => {
                     <div className="title">List Contribution</div>
                 </div>
 
-                <Search placeholder={'Search Contribution'} value={searchTerm} onChange={handleSearchChange}/>
+                <Search placeholder={'Search Contribution'} value={searchTerm} onChange={handleSearchChange} />
 
                 <div className="create">
                     <button className="custom-button" onClick={handlePublic}>Public Contribution</button>
@@ -70,52 +79,58 @@ const ListContributionS = () => {
                 <div className="box">
                     <table>
                         <thead>
-                        <TableHead headings={headings}/>
+                            <TableHead headings={headings} />
                         </thead>
                         <tbody>
-                        {filteredContribution?.length > 0 ? (
-                            filteredContribution?.map((row, index) => (
-                                <tr key={index}>
-                                    <td>{row?.Name}</td>
-                                    <td>{row?.Content}</td>
-                                    <td>
-                                        {
-                                            <img
-                                                width={50 + 'px'}
-                                                height={50 + 'px'}
-                                                src={row?.ImageFiles[0]?.Url?? null}
+                            {filteredContribution?.length > 0 ? (
+                                filteredContribution?.map((row, index) => (
+                                    <tr key={index}>
+                                        <td>{row?.Name}</td>
+                                        <td>{row?.Content}</td>
+                                        <td>
+                                            {
+                                                <img
+                                                    width={50 + 'px'}
+                                                    height={50 + 'px'}
+                                                    src={row?.ImageFiles[0]?.Url ?? null}
                                                 />
-                                        }
+                                            }
 
-                                    </td>
-                                    <td>{(splitFiles(row?.TextFiles[0]?.Url ?? null))}</td>
-                                    <td>
-                                        <div className={`status-contribution ${row?.Status.Name}`}>
-                                            {row?.Status.Name}
-                                        </div>
-                                    </td>
+                                        </td>
+                                        <td>{(splitFiles(row?.TextFiles[0]?.Url ?? null))}</td>
+                                        <td>
+                                            <div className={`status-contribution ${row?.Status.Name}`}>
+                                                {row?.Status.Name}
+                                            </div>
+                                        </td>
 
-                                    <td colSpan="2">
-                                        <ul className="menu-action">
-                                            <li>
-                                                <Link to={`detail/${row.ID}`}>
-                                                    <i className="fa-solid fa-circle-info"></i>
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link to={`update/${row.ID}`}>
-                                                    <i className="fa-solid fa-pen-to-square"></i>
-                                                </Link>
-                                            </li>
-                                        </ul>
-                                    </td>
+                                        <td colSpan="2">
+                                            <ul className="menu-action"
+                                                style={{ display: expired ? 'flex' : 'block' }}
+                                            >
+                                                <li>
+                                                    <Link to={`detail/${row.ID}`}>
+                                                        <i className="fa-solid fa-circle-info"></i>
+                                                    </Link>
+                                                </li>
+                                                <li>
+                                                    {
+                                                        expired && (<Link to={`update/${row.ID}`}>
+                                                            <i className="fa-solid fa-pen-to-square"></i>
+                                                        </Link>)
+                                                    }
+                                                </li>
+                                            </ul>
+                                        </td>
+
+
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={headings?.length}>Not Found</td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={headings?.length}>Not Found</td>
-                            </tr>
-                        )}
+                            )}
                         </tbody>
 
                     </table>

@@ -6,7 +6,6 @@ import {
     NovuProvider,
     PopoverNotificationCenter,
     NotificationBell,
-
 } from "@novu/notification-center";
 
 const NavBar = () => {
@@ -24,6 +23,12 @@ const NavBar = () => {
         window.location.href = '/login';
     }
 
+    const handleOnNotificationClick = (message) => {
+        if (message && message.cta && message.cta.data && message.cta.data.url) {
+            window.location.href = message.cta.data.url;
+        }
+    };
+
     return (
         <nav className="NavBar">
             <div className="logo-2">
@@ -40,7 +45,7 @@ const NavBar = () => {
                         <NovuProvider
                             subscriberId={`${userID}`}
                             applicationIdentifier={"cCNSa5SHFWxD"}>
-                            <PopoverNotificationCenter colorScheme="light">
+                            <PopoverNotificationCenter colorScheme="light" onNotificationClick={handleOnNotificationClick} >
                                 {({ unseenCount }) => <NotificationBell unseenCount={unseenCount} />}
                             </PopoverNotificationCenter>
                         </NovuProvider>

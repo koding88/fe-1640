@@ -93,8 +93,6 @@ const UpdateContributionS = () => {
         setIsLoading(true);
         setError(null);
 
-        console.log(formDataToSend, 'formDataToSend')
-
         try {
             const response = await fetch(`${ApiResponse}contributions/${id}`, {
                 method: 'PATCH',
@@ -176,7 +174,6 @@ const UpdateContributionS = () => {
                                 <button type="button" className="btn" onClick={handleSubmit}>Update</button>
                             </div>
 
-                            {isLoading && <Loading />}
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>

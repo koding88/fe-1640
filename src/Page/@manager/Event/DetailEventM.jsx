@@ -34,6 +34,7 @@ const DetailEventM = () => {
 
     // Handle Event
     const handleBack = () => {
+        navigate('/manager/event')
     }
 
     const handleSubmit = () => {

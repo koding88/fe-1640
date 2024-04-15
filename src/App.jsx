@@ -93,10 +93,10 @@ function App() {
             setIsLoggedIn(!!guest)
         }
 
-        //
-        // if (!token && window.location.pathname !== '/login/') {
-        //   window.location.href = '/login/';
-        // }
+        // Redirect login
+        if (window.location.pathname === '/') {
+            window.location.href = '/login/';
+        }
 
         if (token) {
             const decodedToken = jwtDecode(token);
@@ -271,7 +271,7 @@ function App() {
                                             {/*Dashboard */}
                                             <Route path='/admin/dashboard'
                                                 element={<PrivateRoute element={<AdminDashboard />}
-                                                allowedRoles={[UserRole.ADMIN]} />} />
+                                                    allowedRoles={[UserRole.ADMIN]} />} />
                                             <Route path='/coordinator/dashboard'
                                                 element={<PrivateRoute element={<CoordinatorDashBoard />} allowedRoles={[UserRole.COORDINATOR]} />} />
                                             <Route path='/manager/dashboard'

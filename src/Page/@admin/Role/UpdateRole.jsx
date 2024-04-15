@@ -40,7 +40,7 @@ const UpdateRole = () => {
 
     const validateField = (name, value) => {
         const errorMessage = {
-            Name: /^[A-Za-z\s]{1,15}$/.test(value) ? '' : 'Invalid role name: no numbers or special characters, max 15 chars',
+            Name: /^[A-Za-z\s]{1,50}$/.test(value) ? '' : 'Invalid role name: no numbers or special characters, max 15 chars',
             Description: value.trim() ? '' : 'Description is required'
         }[name];
 

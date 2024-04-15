@@ -1408,6 +1408,16 @@ input[type="file"]::content {
   background: #F9F9F9;
 }
 
+.dashboard.coodinator{
+    height: 600px;
+    display: flex;
+    justify-content: center;
+}
+
+.dashboard.coodinator .customerCard, .dashboard.coodinator .categoryCard{
+    margin-top: 36px;
+}
+
 .dataCard {
   background-color: #efefef;
   border-radius: 0.5em;
