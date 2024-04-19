@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormGroup from '../../components/FormGroup';
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/';
+import { ApiResponse } from '../../Api';
 
 const Data = {
     oldPassword: '',
@@ -85,7 +84,7 @@ const ChangePassword = () => {
                 setError(data.message);
                 return;
             }
-            // navigate(-1);
+            navigate('/profile');
         } catch (error) {
             console.error('Error change password:', error);
             setError('Failed to change password. Please try again later.');
@@ -104,7 +103,9 @@ const ChangePassword = () => {
 
             <div className="row-2">
                 <div className="box"
-                     style={{ minHeight: '620px' }}
+                    style={{
+                        height: 'calc(100vh - 150px)'
+                    }}
                 >
                     <div className="box-content">
                         <form onSubmit={handleSubmit}>
@@ -115,7 +116,8 @@ const ChangePassword = () => {
                                 value={formData.oldPassword}
                                 onChange={handleChange}
                             />
-                            {validationErrors.oldPassword && <div className="error">{validationErrors.oldPassword}</div>}
+                            {validationErrors.oldPassword &&
+                                <div className="error">{validationErrors.oldPassword}</div>}
 
                             <FormGroup
                                 label={'New Password'}
@@ -124,7 +126,8 @@ const ChangePassword = () => {
                                 value={formData.newPassword}
                                 onChange={handleChange}
                             />
-                            {validationErrors.newPassword && <div className="error">{validationErrors.newPassword}</div>}
+                            {validationErrors.newPassword &&
+                                <div className="error">{validationErrors.newPassword}</div>}
 
                             <FormGroup
                                 label={'Confirm Password'}
@@ -133,18 +136,19 @@ const ChangePassword = () => {
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                             />
-                            {validationErrors.ConfirmPassword && <div className="error">{validationErrors.ConfirmPassword}</div>}
+                            {validationErrors.ConfirmPassword &&
+                                <div className="error">{validationErrors.ConfirmPassword}</div>}
 
                             <div className="form-action">
                                 <button type="button" onClick={handleBack} className="btn">Cancel</button>
-                                <button type="submit"  className="btn">Update</button>
+                                <button type="submit" className="btn">Update</button>
                             </div>
                             {error && <div className="error">{error}</div>}
                         </form>
                     </div>
                 </div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 };
 

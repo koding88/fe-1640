@@ -3,13 +3,12 @@ import useFetch from '../../../CustomHooks/useFetch';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormGroup from '../../../components/FormGroup';
 import Loading from '../../../components/Loading';
+import { ApiResponse } from '../../../Api';
 
 const Data = {
     Name: '',
     Description: '',
 }
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
 
 const DetailRole = () => {
     // State
@@ -51,8 +50,9 @@ const DetailRole = () => {
             <div className="row-2">
                 <div className="box"
                     style={{
-                        minHeight: '580px',
-                    }}>
+                        height: 'calc(100vh - 150px)'
+                    }}
+                >
                     <div className="box-content">
                         <form>
                             <FormGroup
@@ -64,7 +64,8 @@ const DetailRole = () => {
 
                             <div className="form-group">
                                 <label>Description</label>
-                                <textarea required name="Description" readOnly cols="30" rows="10" value={formData?.Description}></textarea>
+                                <textarea required name="Description" readOnly cols="30" rows="10"
+                                    value={formData?.Description}></textarea>
                             </div>
 
                             <div className="form-action">

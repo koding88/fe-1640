@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Loading from '../../../components/Loading';
 import FormGroup from '../../../components/FormGroup';
 import useFetch from '../../../CustomHooks/useFetch';
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
+import { ApiResponse } from '../../../Api';
 
 const Data = {
     Name: '',
@@ -162,7 +161,7 @@ const CreateAccount = () => {
                                 </select>
                                 {validationErrors.RoleID && <div className="error">{validationErrors.RoleID}</div>}
                             </div>
-
+                            
                             <div className="form-group mb-input">
                                 <label>Faculty</label>
                                 <select value={formData.FacultyID} onChange={handleChange} className='form-control' name="FacultyID">

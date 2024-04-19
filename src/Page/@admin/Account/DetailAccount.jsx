@@ -3,8 +3,7 @@ import useFetch from '../../../CustomHooks/useFetch';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormGroup from '../../../components/FormGroup';
 import Loading from '../../../components/Loading';
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
+import { ApiResponse } from '../../../Api';
 
 const Data = {
     Name: '',
@@ -50,7 +49,7 @@ const DetailAccount = () => {
         <div className="box">
             <div className="row-1">
                 <div className="header">
-                    <div className="title">List Account</div>
+                    <div className="title">Detail Account</div>
                 </div>
             </div>
             <div className="row-2">

@@ -31,7 +31,7 @@ import DetailRole from './Page/@admin/Role/DetailRole';
 
 // Student - Event
 import ListEventS from './Page/@user/student/Event/ListEventS';
-import DetailEventS from './Page/@user/student/Event/ADetailEventS'
+import DetailEventS from './Page/@user/student/Event/ADetailEventS'
 
 // Student - Contribution
 import ListContributionS from './Page/@user/student/Contribution/ListContributionS';

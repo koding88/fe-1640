@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FormGroup from '../../../components/FormGroup';
 import Loading from '../../../components/Loading';
+import { ApiResponse } from '../../../Api';
 
 const Data = {
     Name: '',
     Description: '',
 }
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
 
 const CreateRole = () => {
     // State
@@ -82,11 +81,11 @@ const CreateRole = () => {
                 </div>
             </div>
             <div className="row-2">
-                <div
-                    style={{
-                        minHeight: '580px',
-                    }}
-                    className="box">
+                <div className="box"
+                     style={{
+                         height: 'calc(100vh - 150px)'
+                     }}
+                >
                     <div className="box-content">
                         <form onSubmit={handleSubmit}>
                             <FormGroup

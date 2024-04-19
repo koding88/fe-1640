@@ -5,14 +5,13 @@ import Loading from '../../../components/Loading';
 import useFetch from '../../../CustomHooks/useFetch';
 import { jwtDecode } from 'jwt-decode';
 import DocViewer, { DocViewerRenderers } from "@cyntler/react-doc-viewer";
+import { ApiResponse } from '../../../Api';
 
 const Data = {
     IsPublic: false,
     IsApproved: false,
     StatusID: 1
 }
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
 
 const UpdateContributionC = () => {
     const [formData, setFormData] = useState(Data);
@@ -21,7 +20,6 @@ const UpdateContributionC = () => {
     const [isActive, setIsActive] = useState(false);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
-    const [isDisabled, setIsDisabled] = useState(false);
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -94,7 +92,6 @@ const UpdateContributionC = () => {
             } else {
                 setComments([...comments, { Content: comment, User: { Name: User.Name } }]);
                 setComment('');
-                setIsDisabled(true);
             }
         } catch (error) {
             console.log('Error creating comment:', error);
@@ -271,7 +268,6 @@ const UpdateContributionC = () => {
                                         <label>Status</label>
                                         <select className="form-control" name="StatusID"
                                             value={formData.StatusID}
-                                            disabled={!isDisabled}
                                             onChange={handleChange}>
                                             {
                                                 status?.map((item, index) => (
@@ -286,7 +282,6 @@ const UpdateContributionC = () => {
                                             className="form-control"
                                             name="IsPublic"
                                             value={formData.IsPublic}
-                                            disabled={!isDisabled}
                                             onChange={handleChange}
                                         >
                                             <option value="true">True</option>

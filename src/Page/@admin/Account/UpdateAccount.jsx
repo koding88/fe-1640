@@ -3,8 +3,7 @@ import useFetch from '../../../CustomHooks/useFetch';
 import { useNavigate, useParams } from 'react-router-dom';
 import Loading from '../../../components/Loading';
 import FormGroup from '../../../components/FormGroup';
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
+import { ApiResponse } from '../../../Api';
 
 const Data = {
     Name: '',
@@ -88,7 +87,7 @@ const UpdateAccount = () => {
 
         const newFormData = {
             ...formData,
-            FacultyID: formData.FacultyID ? parseInt(formData.FacultyID) : '',
+            FacultyID: formData.FacultyID ? parseInt(formData.FacultyID) : undefined,
             RoleID: parseInt(formData.RoleID)
         }
 

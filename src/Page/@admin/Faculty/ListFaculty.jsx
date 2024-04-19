@@ -4,8 +4,7 @@ import TableHead from '../../../components/TableHead';
 import Search from '../../../components/Search';
 import { Link, useNavigate } from 'react-router-dom';
 import Loading from '../../../components/Loading';
-
-const ApiResponse = 'https://dev-nodejs.cuongnd.work/api/v1/'
+import { ApiResponse } from '../../../Api';
 
 const headings = ['Name', 'Description', 'Number event', 'Guest', 'Action'];
 
@@ -38,12 +37,6 @@ const ListFaculty = () => {
             setFacultyEvents(eventCountsByFaculty);
         }
     }, [facultyData, eventData]);
-
-    if (!facultyData) {
-        return (
-            <Loading />
-        );
-    }
 
     // Handle Event
     const handleDelete = async (id) => {
