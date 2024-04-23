@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import NavBar from "./components/NavBar";
 import SideBar from './components/SideBar';
 import { jwtDecode } from 'jwt-decode';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // Admin - Account
 import ListAccount from "./Page/@admin/Account/ListAccount";
@@ -128,6 +129,7 @@ function App() {
     return (
         <Router>
             <div className="App">
+                <SpeedInsights />
                 <Routes>
                     {/* Auth */}
                     <Route path='/' element={<Login />} />
