@@ -19,14 +19,13 @@ const UpdateContributionC = () => {
     const [isActive, setIsActive] = useState(false);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
     const {id} = useParams();
 
     const {data: contribution} = useFetch(`${ApiResponse}contributions/${id}?depth=1&file=true&comment=true`);
     const {data: status} = useFetch(`${ApiResponse}status`);
     const EventID = contribution?.EventID;
-
-
 
     // Set Data
     useEffect(() => {
@@ -68,6 +67,11 @@ const UpdateContributionC = () => {
     const handleSubmitComments = async (e) => {
         e.preventDefault();
 
+        if (isSubmitting) {
+            return;
+        }
+        setIsSubmitting(true);
+
         const data = {
             Content: comment,
             ContributionID: parseInt(id)
@@ -93,18 +97,15 @@ const UpdateContributionC = () => {
         } catch (error) {
             console.log('Error creating comment:', error);
             setError('Failed to create comment. Please try again later.');
+        }finally {
+            setIsSubmitting(false);
         }
     };
 
     // Handle Event
-
     const handleBack = () => {
-        navigate(-1) // Go back | Need to fix
+        navigate(`/coordinator/event/contribution/${EventID}`)
     }
-
-    const token = localStorage.getItem('token');
-    const decodedToken = jwtDecode(token);
-    const UserID = decodedToken.id;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -114,8 +115,6 @@ const UpdateContributionC = () => {
             StatusID: parseInt(formData.StatusID),
             IsApproved: formData.StatusID === '3' ? true : false
         };
-
-        console.log(newFormData);
 
         setIsLoading(true);
         setError(null);
@@ -239,7 +238,7 @@ const UpdateContributionC = () => {
                                                    onChange={(e) => setComment(e.target.value)}
                                                    className="form-control"
                                                    placeholder="Write a comment..."/>
-                                            <button type="submit" onClick={handleSubmitComments}>
+                                            <button type="submit" disabled={isSubmitting} onClick={handleSubmitComments}>
                                                 <i className="fa-solid fa-paper-plane"></i>
                                             </button>
                                         </div>

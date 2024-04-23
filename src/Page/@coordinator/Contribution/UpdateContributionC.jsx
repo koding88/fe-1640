@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import FormGroup from '../../../components/FormGroup';
 import Loading from '../../../components/Loading';
 import useFetch from '../../../CustomHooks/useFetch';
-import { jwtDecode } from 'jwt-decode';
 import DocViewer, { DocViewerRenderers } from "@cyntler/react-doc-viewer";
 import { ApiResponse } from '../../../Api';
 
@@ -20,6 +18,7 @@ const UpdateContributionC = () => {
     const [isActive, setIsActive] = useState(false);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -70,6 +69,11 @@ const UpdateContributionC = () => {
     const handleSubmitComments = async (e) => {
         e.preventDefault();
 
+        if (isSubmitting) {
+            return;
+        }
+        setIsSubmitting(true);
+
         const data = {
             Content: comment,
             ContributionID: parseInt(id)
@@ -96,6 +100,9 @@ const UpdateContributionC = () => {
         } catch (error) {
             console.log('Error creating comment:', error);
             setError('Failed to create comment. Please try again later.');
+        } finally {
+            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -111,14 +118,10 @@ const UpdateContributionC = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const formDataToSend = new FormData();
-
+        const formDataToSend = new FormData()
         const isPublic = formData.IsPublic === 'true';
-
         formDataToSend.append('IsPublic', isPublic);
         formDataToSend.append('StatusID', formData.StatusID);
-
-
         setIsLoading(true);
         setError(null);
 
@@ -240,7 +243,7 @@ const UpdateContributionC = () => {
                                                 onChange={(e) => setComment(e.target.value)}
                                                 className="form-control"
                                                 placeholder="Write a comment..." />
-                                            <button type="submit" onClick={handleSubmitComments}>
+                                            <button type="submit" disabled={isSubmitting} onClick={handleSubmitComments}>
                                                 <i className="fa-solid fa-paper-plane"></i>
                                             </button>
                                         </div>
